@@ -1,0 +1,11 @@
+[package]
+name = "raytracing"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+edition = "2021"
+name = "raytracing"
+path = "src/main.rs"
+
+[dependencies]

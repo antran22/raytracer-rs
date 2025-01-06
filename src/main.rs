@@ -1,17 +1,28 @@
 use ray::Ray;
+use sphere::Sphere;
 use std::io::{self, Write};
 use vec3::{Color, Point, Vec3};
 
 mod ray;
+mod sphere;
 mod vec3;
+
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
 const WHITE: Color = Color::val(1.0, 1.0, 1.0);
 const BLUE: Color = Color::val(0.5, 0.7, 1.0);
+const RED: Color = Color::val(1.0, 0.0, 0.0);
+const SPHERE: Sphere = Sphere {
+    center: Point::val(0.0, 0.0, -1.0),
+    radius: 0.5,
+};
 
 fn ray_color(ray: &Ray) -> Color {
+    if ray.hit_sphere(&SPHERE) {
+        return RED;
+    }
     let unit_dir = ray.dir.unit();
-    let a = 0.5 * (unit_dir.y() + 1.0);
-    (1.0 - a) * WHITE  + a * BLUE
+    let a = 0.5 * (unit_dir.y + 1.0);
+    (1.0 - a) * WHITE + a * BLUE
 }
 
 fn main() {
@@ -32,9 +43,10 @@ fn main() {
     // Calculate the horizontal & vertical delta vectors from pixel to pixel
     let pixel_delta_u = viewport_u / (image_width as f64);
     let pixel_delta_v = viewport_v / (image_height as f64);
-    
+
     // Calculate the location of the upper left pixel
-    let viewport_upper_left = camera_center - Vec3::val(0.0, 0.0, focal_length) - (viewport_u / 2.0) - (viewport_v / 2.0);
+    let viewport_upper_left =
+        camera_center - Vec3::val(0.0, 0.0, focal_length) - (viewport_u / 2.0) - (viewport_v / 2.0);
     let pixel00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) * 0.5;
 
     print!("P3\n{image_width} {image_height}\n255\n");
@@ -43,9 +55,13 @@ fn main() {
         eprint!("\rScanlines remaining: {}", image_height - j);
         io::stderr().flush().expect("Unable to flush stderr");
         for i in 0..image_width {
-            let pixel_center = pixel00_loc + pixel_delta_u * (i as f64) + pixel_delta_v * (j as f64);
+            let pixel_center =
+                pixel00_loc + pixel_delta_u * (i as f64) + pixel_delta_v * (j as f64);
             let ray_direction = pixel_center - camera_center;
-            let r = Ray { origin: camera_center, dir: ray_direction};
+            let r = Ray {
+                origin: camera_center,
+                dir: ray_direction,
+            };
 
             let color = ray_color(&r);
             color.print_color(stdout).expect("cannot printout color");

@@ -7,11 +7,11 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
-    pub fn zero() -> Vec3 {
+    pub const fn zero() -> Vec3 {
         Self { e: [0.0, 0.0, 0.0] }
     }
 
-    pub fn val(a: f64, b: f64, c: f64) -> Vec3 {
+    pub const fn val(a: f64, b: f64, c: f64) -> Vec3 {
         Self { e: [a, b, c] }
     }
 
@@ -45,7 +45,7 @@ impl Vec3 {
         )
     }
 
-    pub fn unit_vec(&self) -> Vec3 {
+    pub fn unit(&self) -> Vec3 {
         *self / self.length()
     }
 }
@@ -74,18 +74,6 @@ impl Sub for Vec3 {
     }
 }
 
-impl Mul for Vec3 {
-    type Output = Vec3;
-
-    fn mul(self, other: Vec3) -> Vec3 {
-        Vec3::val(
-            self.x() * other.x(),
-            self.y() * other.y(),
-            self.z() * other.z(),
-        )
-    }
-}
-
 impl AddAssign for Vec3 {
     fn add_assign(&mut self, other: Vec3) {
         self.e[0] += other.x();
@@ -107,6 +95,14 @@ impl Mul<f64> for Vec3 {
 
     fn mul(self, scalar: f64) -> Vec3 {
         Vec3::val(self.x() * scalar, self.y() * scalar, self.z() * scalar)
+    }
+}
+
+impl Mul<Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, vec: Vec3) -> Vec3 {
+        vec * self
     }
 }
 

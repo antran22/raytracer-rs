@@ -1,31 +1,31 @@
+use object::{Hittable, Sphere};
 use ray::Ray;
-use sphere::Sphere;
 use std::io::{self, Write};
 use vec3::{Color, Point, Vec3};
 
+mod object;
 mod ray;
-mod sphere;
 mod vec3;
 
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
 const WHITE: Color = Color::val(1.0, 1.0, 1.0);
 const BLUE: Color = Color::val(0.5, 0.7, 1.0);
-const RED: Color = Color::val(1.0, 0.0, 0.0);
 const SPHERE: Sphere = Sphere {
     center: Point::val(0.0, 0.0, -1.0),
     radius: 0.5,
 };
 
 fn ray_color(ray: &Ray) -> Color {
-    match ray.sphere_normal(&SPHERE) {
+    match SPHERE.hit(ray, 0.0, 10.0) {
         None => {
             let unit_dir = ray.dir.unit();
             let a = 0.5 * (unit_dir.y + 1.0);
             (1.0 - a) * WHITE + a * BLUE
-        },
-        Some(normal) => {
-            Color::val(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0) * 0.5
         }
+        Some(record) => {
+            let normal = record.normal;
+            Color::val(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0) * 0.5
+        },
     }
 }
 

@@ -17,12 +17,16 @@ const SPHERE: Sphere = Sphere {
 };
 
 fn ray_color(ray: &Ray) -> Color {
-    if ray.hit_sphere(&SPHERE) {
-        return RED;
+    match ray.sphere_normal(&SPHERE) {
+        None => {
+            let unit_dir = ray.dir.unit();
+            let a = 0.5 * (unit_dir.y + 1.0);
+            (1.0 - a) * WHITE + a * BLUE
+        },
+        Some(normal) => {
+            Color::val(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0) * 0.5
+        }
     }
-    let unit_dir = ray.dir.unit();
-    let a = 0.5 * (unit_dir.y + 1.0);
-    (1.0 - a) * WHITE + a * BLUE
 }
 
 fn main() {
@@ -67,5 +71,5 @@ fn main() {
             color.print_color(stdout).expect("cannot printout color");
         }
     }
-    eprintln!("\rDone");
+    eprintln!("\nDone");
 }

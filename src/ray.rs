@@ -13,13 +13,20 @@ impl Ray {
         return self.origin + self.dir * t;
     }
 
-    pub fn hit_sphere(&self, s: &Sphere) -> bool {
+    pub fn sphere_normal(&self, s: &Sphere) -> Option<Vec3> {
         let oc = s.center - self.origin;
-        let a = self.dir.dot(&self.dir);
-        let b = -2.0 * self.dir.dot(&oc);
-        let c = oc.dot(&oc) - s.radius * s.radius;
+        let a = self.dir.length_squared();
+        let h = self.dir.dot(&oc);
+        let c = oc.length_squared() - s.radius * s.radius;
 
-        let discriminant = b * b - 4.0 * a * c;
-        discriminant >= 0.0
+        let discriminant = h * h - a * c;
+
+        if discriminant < 0.0 {
+            None
+        } else {
+            let t = (h - discriminant.sqrt()) / a;
+            let n = (self.at(t) - s.center).unit();
+            Some(n)
+        }
     }
 }

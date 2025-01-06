@@ -1,2 +1,2 @@
 raytracer:
-	rm -f image.ppm && cargo run --quiet > image.ppm && open image.ppm
+	mkdir -p output && cargo run --quiet >| output/image.ppm && open output/image.ppm

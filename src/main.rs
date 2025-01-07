@@ -9,6 +9,7 @@ use vec3::{Color, Point, Vec3};
 mod object;
 mod ray;
 mod vec3;
+mod interval;
 
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
 const WHITE: Color = Color::val(1.0, 1.0, 1.0);
@@ -24,7 +25,7 @@ const SPHERE2: Sphere = Sphere {
 };
 
 fn ray_color(object: &dyn Hittable, ray: &Ray) -> Color {
-    match object.hit(ray, 0.0, 10.0) {
+    match object.hit(ray, &interval::POSITIVE) {
         None => {
             let unit_dir = ray.dir.unit();
             let a = 0.5 * (unit_dir.y + 1.0);

@@ -1,10 +1,13 @@
-use crate::{interval::Interval, ray::Ray, vec3::Point};
+use std::rc::Rc;
+
+use crate::{interval::Interval, material::Material, ray::Ray, vec3::Point};
 
 use super::hittable::{HitRecord, Hittable};
 
 pub struct Sphere {
     pub center: Point,
     pub radius: f64,
+    pub material: Rc<dyn Material>,
 }
 
 impl Hittable for Sphere {
@@ -32,6 +35,11 @@ impl Hittable for Sphere {
 
         let point = ray.at(t);
         let outward_normal = (point - self.center) / self.radius;
-        Some(HitRecord::new(ray, t, outward_normal))
+        Some(HitRecord::new(
+            ray,
+            t,
+            outward_normal,
+            self.material.clone(),
+        ))
     }
 }

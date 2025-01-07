@@ -19,3 +19,10 @@ pub fn rand_vector_on_hemisphere(normal: &Vec3) -> Vec3 {
     }
     return -u;
 }
+
+pub fn linear_to_gamma(linear: f64) -> f64 {
+    if linear > 0.0 {
+        return linear.sqrt();
+    }
+    return 0.0;
+}

@@ -2,6 +2,7 @@ use std::io::{self, Write};
 
 use crate::{
     interval::{self, Interval},
+    material::ScatterResult,
     object::Hittable,
     ray::Ray,
     utils::{rand_double, rand_vector_on_hemisphere},
@@ -84,25 +85,23 @@ impl Camera {
         if depth <= 0 {
             return BLACK;
         }
-        match object.hit(ray, &RAY_INTERVAL) {
-            Some(record) => {
-                let dir = rand_vector_on_hemisphere(&record.normal);
-                0.5 * Camera::ray_color(
-                    object,
-                    &Ray {
-                        origin: record.point,
-                        dir: dir,
-                    },
-                    depth - 1,
-                )
-            }
+        if let Some(record) = object.hit(ray, &RAY_INTERVAL) {
+            if let Some(scatter_result) = record.material.scatter(ray, &record) {
+                let ScatterResult { attenuation, ray: scattered_ray } = scatter_result;
 
-            None => {
-                let unit_dir = ray.dir.unit();
-                let a = 0.5 * (unit_dir.y + 1.0);
-                (1.0 - a) * WHITE + a * BLUE
+                return attenuation
+                    * Camera::ray_color(
+                        object,
+                        &scattered_ray,
+                        depth - 1,
+                    );
             }
+            
+            return Color::BLACK;
         }
+        let unit_dir = ray.dir.unit();
+        let a = 0.5 * (unit_dir.y + 1.0);
+        return (1.0 - a) * WHITE + a * BLUE;
     }
 
     fn get_ray(&self, i: i32, j: i32) -> Ray {

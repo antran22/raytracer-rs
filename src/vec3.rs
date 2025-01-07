@@ -21,30 +21,6 @@ impl Vec3 {
         Self { x: a, y: b, z: c }
     }
 
-    pub fn length_squared(&self) -> f64 {
-        self.x * self.x + self.y * self.y + self.z * self.z
-    }
-
-    pub fn length(&self) -> f64 {
-        self.length_squared().sqrt()
-    }
-
-    pub fn dot(&self, other: &Vec3) -> f64 {
-        self.x * other.x + self.y * other.y + self.z * other.z
-    }
-
-    pub fn cross(&self, b: Vec3) -> Vec3 {
-        Vec3::val(
-            self.y * b.z - self.z * b.y,
-            self.z * b.x - self.x * b.z,
-            self.x * b.y - self.y * b.x,
-        )
-    }
-
-    pub fn unit(&self) -> Vec3 {
-        *self / self.length()
-    }
-
     pub fn rand() -> Self {
         Vec3 {
             x: rand_double(),
@@ -69,6 +45,39 @@ impl Vec3 {
                 return v / lensq.sqrt();
             }
         }
+    }
+
+    pub fn length_squared(&self) -> f64 {
+        self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
+    pub fn length(&self) -> f64 {
+        self.length_squared().sqrt()
+    }
+
+    pub fn dot(&self, other: &Vec3) -> f64 {
+        self.x * other.x + self.y * other.y + self.z * other.z
+    }
+
+    pub fn cross(&self, b: Vec3) -> Vec3 {
+        Vec3::val(
+            self.y * b.z - self.z * b.y,
+            self.z * b.x - self.x * b.z,
+            self.x * b.y - self.y * b.x,
+        )
+    }
+
+    pub fn unit(&self) -> Vec3 {
+        *self / self.length()
+    }
+    
+    pub fn reflect(&self, normal: &Vec3) -> Vec3 {
+        *self - (2.0 * self.dot(normal) * normal)
+    }
+
+    pub fn is_near_zero(&self) -> bool {
+        const EPS: f64 = 1e-8;
+        self.x.abs() < EPS && self.y.abs() < EPS && self.y.abs() < EPS
     }
 }
 
@@ -116,6 +125,14 @@ impl SubAssign for Vec3 {
     }
 }
 
+impl Mul<Vec3> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, vec: Vec3) -> Vec3 {
+        Vec3::val(self.x * vec.x, self.y * vec.y, self.z * vec.z)
+    }
+}
+
 impl Mul<f64> for Vec3 {
     type Output = Vec3;
 
@@ -129,6 +146,14 @@ impl Mul<Vec3> for f64 {
 
     fn mul(self, vec: Vec3) -> Vec3 {
         vec * self
+    }
+}
+
+impl Mul<&Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, vec: &Vec3) -> Vec3 {
+        *vec * self
     }
 }
 
@@ -164,14 +189,21 @@ impl std::fmt::Display for Point {
 pub use Vec3 as Color;
 
 use crate::interval::Interval;
-use crate::utils::{rand_double, rand_range_double};
+use crate::utils::{linear_to_gamma, rand_double, rand_range_double};
 const COLOR_INTENSITY: Interval = Interval::new(0.0, 0.9999);
 impl Color {
     pub fn print_color(&self, stream: &mut dyn Write) -> Result<(), std::io::Error> {
-        let r = (COLOR_INTENSITY.clamp(self.x) * 256.0) as u8;
-        let g = (COLOR_INTENSITY.clamp(self.y) * 256.0) as u8;
-        let b = (COLOR_INTENSITY.clamp(self.z) * 256.0) as u8;
+        let r = linear_to_gamma(self.x);
+        let g = linear_to_gamma(self.y);
+        let b = linear_to_gamma(self.z);
 
-        writeln!(stream, "{} {} {}", r, g, b)
+        let rbyte = (COLOR_INTENSITY.clamp(r) * 256.0) as u8;
+        let gbyte = (COLOR_INTENSITY.clamp(g) * 256.0) as u8;
+        let bbyte = (COLOR_INTENSITY.clamp(b) * 256.0) as u8;
+
+        writeln!(stream, "{} {} {}", rbyte, gbyte, bbyte)
     }
+    
+    pub const BLACK: Self = Self::zero();
+    pub const RED: Self = Self::val(1.0, 0.0, 0.0);
 }

@@ -56,7 +56,11 @@ impl Vec3 {
     }
 
     pub fn dot(&self, other: &Vec3) -> f64 {
-        self.x * other.x + self.y * other.y + self.z * other.z
+        Self::dot_product(self, other)
+    }
+    
+    pub fn dot_product(a: &Self, b: &Self) -> f64 {
+        a.x * b.x + a.y * b.y + a.z * b.z
     }
 
     pub fn cross(&self, b: Vec3) -> Vec3 {
@@ -67,21 +71,41 @@ impl Vec3 {
         )
     }
 
-    pub fn unit(&self) -> Vec3 {
-        *self / self.length()
-    }
-    
-    pub fn reflect(&self, normal: &Vec3) -> Vec3 {
-        *self - (2.0 * self.dot(normal) * normal)
-    }
-
     pub fn is_near_zero(&self) -> bool {
         const EPS: f64 = 1e-8;
         self.x.abs() < EPS && self.y.abs() < EPS && self.y.abs() < EPS
     }
+
+    pub fn unit(&self) -> Vec3 {
+        *self / self.length()
+    }
+
+    pub fn reflect(&self, normal: &Vec3) -> Vec3 {
+        *self - (2.0 * self.dot(normal) * normal)
+    }
+
+    pub fn refract(&self, normal: &Vec3, refract_ratio: f64) -> Vec3 {
+        let cos_theta = f64::min((-self).dot(normal), 1.0);
+        let r_out_perpendicular = refract_ratio * (*self + cos_theta * normal);
+        let r_out_parallel = -(1.0 - r_out_perpendicular.length_squared()).abs().sqrt() * normal;
+        return r_out_parallel + r_out_perpendicular;
+    }
 }
 
 impl Neg for Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Vec3 {
+        Vec3 {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
+    }
+}
+
+
+impl Neg for &Vec3 {
     type Output = Vec3;
 
     fn neg(self) -> Vec3 {
@@ -203,7 +227,8 @@ impl Color {
 
         writeln!(stream, "{} {} {}", rbyte, gbyte, bbyte)
     }
-    
+
     pub const BLACK: Self = Self::zero();
+    pub const WHITE: Self = Self::val(1.0, 1.0, 1.0);
     pub const RED: Self = Self::val(1.0, 0.0, 0.0);
 }

@@ -1,5 +1,5 @@
 use camera::{Camera, CameraOption};
-use material::{Lambertian, Metal};
+use material::{Dielectric, Lambertian, Metal};
 use object::{HittableList, Sphere};
 use std::{fs::File, rc::Rc};
 use vec3::{Color, Point};
@@ -17,7 +17,9 @@ fn main() {
 
     let mat_ground = Lambertian::new(&Color::val(0.8, 0.8, 0.0));
     let mat_center = Lambertian::new(&Color::val(0.1, 0.2, 0.5));
-    let mat_left = Metal::new(&Color::val(0.8, 0.8, 0.8), 0.3);
+    // let mat_left = Metal::new(&Color::val(0.8, 0.8, 0.8), 0.3);
+    let mat_left = Dielectric::new(1.5);
+    let mat_bubble= Dielectric::new(1.0 / 1.5);
     let mat_right = Metal::new(&Color::val(0.8, 0.6, 0.2), 1.0);
 
     world.add(Rc::new(Sphere {
@@ -36,14 +38,20 @@ fn main() {
         material: Rc::new(mat_left),
     }));
     world.add(Rc::new(Sphere {
+        center: Point::val(-1.0, 0.0, -1.0),
+        radius: 0.4,
+        material: Rc::new(mat_bubble),
+    }));
+    world.add(Rc::new(Sphere {
         center: Point::val(1.0, 0.0, -1.0),
         radius: 0.5,
         material: Rc::new(mat_right),
     }));
 
+    let image_width = 1000;
     let camera = Camera::new(CameraOption {
-        image_width: 1000,
-        image_height: (1000.0 / (16.0 / 9.0)) as i32,
+        image_width: image_width,
+        image_height: (image_width as f64 / (16.0 / 9.0)) as i32,
         viewport_height: 2.0,
         position: Point::val(0.0, 0.0, 0.0),
         focal_length: 1.0,

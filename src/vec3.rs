@@ -1,7 +1,7 @@
 use std::io::Write;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
 
-#[derive(Copy, Clone, Default)]
+#[derive(Copy, Clone, Default, Debug)]
 pub struct Vec3 {
     pub x: f64,
     pub y: f64,
@@ -43,6 +43,32 @@ impl Vec3 {
 
     pub fn unit(&self) -> Vec3 {
         *self / self.length()
+    }
+
+    pub fn rand() -> Self {
+        Vec3 {
+            x: rand_double(),
+            y: rand_double(),
+            z: rand_double(),
+        }
+    }
+
+    pub fn rand_range(r: &Range<f64>) -> Self {
+        Vec3 {
+            x: rand_range_double(r),
+            y: rand_range_double(r),
+            z: rand_range_double(r),
+        }
+    }
+
+    pub fn rand_unit() -> Self {
+        loop {
+            let v = Vec3::rand_range(&(-1.0..1.0));
+            let lensq = v.length_squared();
+            if 1e-160 < lensq && lensq < 1.0 {
+                return v / lensq.sqrt();
+            }
+        }
     }
 }
 
@@ -137,11 +163,14 @@ impl std::fmt::Display for Point {
 
 pub use Vec3 as Color;
 
+use crate::interval::Interval;
+use crate::utils::{rand_double, rand_range_double};
+const COLOR_INTENSITY: Interval = Interval::new(0.0, 0.9999);
 impl Color {
     pub fn print_color(&self, stream: &mut dyn Write) -> Result<(), std::io::Error> {
-        let r = (self.x * 255.999) as u8;
-        let g = (self.y * 255.999) as u8;
-        let b = (self.z * 255.999) as u8;
+        let r = (COLOR_INTENSITY.clamp(self.x) * 256.0) as u8;
+        let g = (COLOR_INTENSITY.clamp(self.y) * 256.0) as u8;
+        let b = (COLOR_INTENSITY.clamp(self.z) * 256.0) as u8;
 
         writeln!(stream, "{} {} {}", r, g, b)
     }

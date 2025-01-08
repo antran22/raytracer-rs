@@ -58,6 +58,8 @@ fn main() {
         look_from: Point::val(-2.0, 2.0, 1.0),
         look_at: Point::val(0.0, 0.0, -1.0),
         vup: Vec3::val(0.0, 1.0, 0.0),
+        defocus_angle: 10.0,
+        focus_distance: 3.4,
     });
 
     let mut file = File::create("./output/image.ppm").expect("cannot open file");

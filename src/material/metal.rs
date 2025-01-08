@@ -12,9 +12,9 @@ pub struct Metal {
 }
 
 impl Metal {
-    pub fn new(albedo: &Color, fuzz: f64) -> Self {
+    pub fn new(albedo: Color, fuzz: f64) -> Self {
         Self {
-            albedo: *albedo,
+            albedo: albedo,
             fuzz: f64::min(f64::max(fuzz, 0.0), 1.0),
         }
     }

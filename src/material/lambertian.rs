@@ -11,8 +11,8 @@ pub struct Lambertian {
 }
 
 impl Lambertian {
-    pub const fn new(albedo: &Color) -> Self {
-        Self { albedo: *albedo }
+    pub const fn new(albedo: Color) -> Self {
+        Self { albedo: albedo }
     }
 }
 

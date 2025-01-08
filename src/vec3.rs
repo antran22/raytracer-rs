@@ -29,7 +29,7 @@ impl Vec3 {
         }
     }
 
-    pub fn rand_range(r: &Range<f64>) -> Self {
+    pub fn rand_range(r: Range<f64>) -> Self {
         Vec3 {
             x: rand_range_double(r.clone()),
             y: rand_range_double(r.clone()),
@@ -39,7 +39,7 @@ impl Vec3 {
 
     pub fn rand_unit() -> Self {
         loop {
-            let v = Vec3::rand_range(&(-1.0..1.0));
+            let v = Vec3::rand_range(-1.0..1.0);
             let lensq = v.length_squared();
             if 1e-160 < lensq && lensq < 1.0 {
                 return v / lensq.sqrt();
@@ -202,6 +202,11 @@ pub use Vec3 as Point;
 impl std::fmt::Display for Point {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "({}, {}, {})", self.x, self.y, self.z)
+    }
+}
+impl Point {
+    pub fn dist(&self, b: Point) -> f64 {
+        return (b - *self).length();
     }
 }
 

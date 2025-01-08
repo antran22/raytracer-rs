@@ -31,8 +31,8 @@ impl Material for Dielectric {
             self.refraction_index
         };
 
-        let unit_dir = r_in.dir.unit();
-        let cos_theta = f64::min(Vec3::dot_product(&-unit_dir, normal), 1.0);
+        let unit_dir = r_in.dir.to_unit();
+        let cos_theta = f64::min(Vec3::dot(&-unit_dir, normal), 1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
         let dir = if ri * sin_theta > 1.0 || Dielectric::reflectance(cos_theta, ri) > rand_double()

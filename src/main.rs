@@ -2,7 +2,7 @@ use camera::{Camera, CameraOption};
 use material::{Dielectric, Lambertian, Metal};
 use object::{HittableList, Sphere};
 use std::{fs::File, rc::Rc};
-use vec3::{Color, Point};
+use vec3::{Color, Point, Vec3};
 
 mod camera;
 mod interval;
@@ -48,15 +48,16 @@ fn main() {
         material: Rc::new(mat_right),
     }));
 
-    let image_width = 1000;
+    let image_width = 400;
     let camera = Camera::new(CameraOption {
         image_width: image_width,
         image_height: (image_width as f64 / (16.0 / 9.0)) as i32,
-        viewport_height: 2.0,
-        position: Point::val(0.0, 0.0, 0.0),
-        focal_length: 1.0,
+        vfov: 20.0,
         samples_per_pixel: 10,
         max_depth: 50,
+        look_from: Point::val(-2.0, 2.0, 1.0),
+        look_at: Point::val(0.0, 0.0, -1.0),
+        vup: Vec3::val(0.0, 1.0, 0.0),
     });
 
     let mut file = File::create("./output/image.ppm").expect("cannot open file");

@@ -31,9 +31,9 @@ impl Vec3 {
 
     pub fn rand_range(r: &Range<f64>) -> Self {
         Vec3 {
-            x: rand_range_double(r),
-            y: rand_range_double(r),
-            z: rand_range_double(r),
+            x: rand_range_double(r.clone()),
+            y: rand_range_double(r.clone()),
+            z: rand_range_double(r.clone()),
         }
     }
 
@@ -55,15 +55,11 @@ impl Vec3 {
         self.length_squared().sqrt()
     }
 
-    pub fn dot(&self, other: &Vec3) -> f64 {
-        Self::dot_product(self, other)
-    }
-    
-    pub fn dot_product(a: &Self, b: &Self) -> f64 {
-        a.x * b.x + a.y * b.y + a.z * b.z
+    pub fn dot(&self, b: &Vec3) -> f64 {
+        self.x * b.x + self.y * b.y + self.z * b.z
     }
 
-    pub fn cross(&self, b: Vec3) -> Vec3 {
+    pub fn cross(&self, b: &Vec3) -> Vec3 {
         Vec3::val(
             self.y * b.z - self.z * b.y,
             self.z * b.x - self.x * b.z,
@@ -76,7 +72,7 @@ impl Vec3 {
         self.x.abs() < EPS && self.y.abs() < EPS && self.y.abs() < EPS
     }
 
-    pub fn unit(&self) -> Vec3 {
+    pub fn to_unit(&self) -> Vec3 {
         *self / self.length()
     }
 
@@ -103,7 +99,6 @@ impl Neg for Vec3 {
         }
     }
 }
-
 
 impl Neg for &Vec3 {
     type Output = Vec3;

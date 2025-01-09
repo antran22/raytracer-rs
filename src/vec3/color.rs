@@ -19,6 +19,6 @@ impl Color {
     }
 
     pub const BLACK: Self = Self::zero();
-    pub const WHITE: Self = Self::val(1.0, 1.0, 1.0);
-    pub const RED: Self = Self::val(1.0, 0.0, 0.0);
+    pub const WHITE: Self = Self::new(1.0, 1.0, 1.0);
+    pub const RED: Self = Self::new(1.0, 0.0, 0.0);
 }

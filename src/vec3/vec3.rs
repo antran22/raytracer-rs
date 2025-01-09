@@ -18,7 +18,7 @@ impl Vec3 {
         }
     }
 
-    pub const fn val(a: f64, b: f64, c: f64) -> Vec3 {
+    pub const fn new(a: f64, b: f64, c: f64) -> Vec3 {
         Self { x: a, y: b, z: c }
     }
 
@@ -61,7 +61,7 @@ impl Vec3 {
     }
 
     pub fn cross(&self, b: &Vec3) -> Vec3 {
-        Vec3::val(
+        Vec3::new(
             self.y * b.z - self.z * b.y,
             self.z * b.x - self.x * b.z,
             self.x * b.y - self.y * b.x,
@@ -87,6 +87,8 @@ impl Vec3 {
         let r_out_parallel = -(1.0 - r_out_perpendicular.length_squared()).abs().sqrt() * normal;
         return r_out_parallel + r_out_perpendicular;
     }
+    
+    pub const ZERO: Vec3 = Vec3::new(0.0, 0.0, 0.0);
 }
 
 impl Neg for Vec3 {
@@ -117,7 +119,7 @@ impl Add for Vec3 {
     type Output = Vec3;
 
     fn add(self, other: Vec3) -> Vec3 {
-        Vec3::val(self.x + other.x, self.y + other.y, self.z + other.z)
+        Vec3::new(self.x + other.x, self.y + other.y, self.z + other.z)
     }
 }
 
@@ -125,7 +127,7 @@ impl Sub for Vec3 {
     type Output = Vec3;
 
     fn sub(self, other: Vec3) -> Vec3 {
-        Vec3::val(self.x - other.x, self.y - other.y, self.z - other.z)
+        Vec3::new(self.x - other.x, self.y - other.y, self.z - other.z)
     }
 }
 
@@ -149,7 +151,7 @@ impl Mul<Vec3> for Vec3 {
     type Output = Vec3;
 
     fn mul(self, vec: Vec3) -> Vec3 {
-        Vec3::val(self.x * vec.x, self.y * vec.y, self.z * vec.z)
+        Vec3::new(self.x * vec.x, self.y * vec.y, self.z * vec.z)
     }
 }
 
@@ -157,7 +159,7 @@ impl Mul<f64> for Vec3 {
     type Output = Vec3;
 
     fn mul(self, scalar: f64) -> Vec3 {
-        Vec3::val(self.x * scalar, self.y * scalar, self.z * scalar)
+        Vec3::new(self.x * scalar, self.y * scalar, self.z * scalar)
     }
 }
 

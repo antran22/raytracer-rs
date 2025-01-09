@@ -22,7 +22,7 @@ pub fn rand_vector_on_hemisphere(normal: &Vec3) -> Vec3 {
 
 pub fn rand_vector_in_unit_disk() -> Vec3 {
     loop {
-        let v = Vec3::val(
+        let v = Vec3::new(
             rand_range_double(-1.0..1.0),
             rand_range_double(-1.0..1.0),
             0.0,

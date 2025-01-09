@@ -46,6 +46,7 @@ impl Material for Dielectric {
             attenuation: Color::WHITE,
             ray: Ray {
                 origin: *point,
+                time: r_in.time,
                 dir,
             },
         })

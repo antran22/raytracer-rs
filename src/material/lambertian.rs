@@ -27,6 +27,7 @@ impl Material for Lambertian {
 
         let scattered = Ray {
             origin: hit_record.point,
+            time: r_in.time,
             dir: scatter_dir,
         };
         Some(ScatterResult {

@@ -32,6 +32,7 @@ impl Material for Metal {
         let scattered_ray = Ray {
             dir: reflected_dir,
             origin: hit_record.point,
+            time: r_in.time,
         };
         Some(ScatterResult {
             attenuation: self.albedo,

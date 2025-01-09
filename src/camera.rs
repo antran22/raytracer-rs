@@ -7,8 +7,8 @@ use crate::{
     vec3::{Color, Point, Vec3},
 };
 
-const WHITE: Color = Color::val(1.0, 1.0, 1.0);
-const BLUE: Color = Color::val(0.5, 0.7, 1.0);
+const WHITE: Color = Color::new(1.0, 1.0, 1.0);
+const BLUE: Color = Color::new(0.5, 0.7, 1.0);
 const BLACK: Color = Color::zero();
 
 const RAY_INTERVAL: Interval = Interval {
@@ -140,6 +140,7 @@ impl Camera {
         Ray {
             origin: ray_origin,
             dir: pixel_sample - ray_origin,
+            time: rand_double(),
         }
     }
 

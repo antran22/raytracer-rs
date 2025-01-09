@@ -1,19 +1,49 @@
 use std::sync::Arc;
 
-use crate::{interval::Interval, material::Material, ray::Ray, vec3::Point};
+use crate::{
+    interval::Interval,
+    material::Material,
+    ray::Ray,
+    vec3::{Point, Vec3},
+};
 
 use super::hittable::{HitRecord, Hittable};
 
 pub struct Sphere {
-    pub center: Point,
-    pub radius: f64,
-    pub material: Arc<dyn Material + Send + Sync>,
+    center: Ray,
+    radius: f64,
+    material: Arc<dyn Material + Send + Sync>,
 }
 
 impl Sphere {
-    pub fn new(center: Point, radius: f64, material: Arc<dyn Material + Send + Sync>) -> Self {
+    pub fn stationary(
+        center: Point,
+        radius: f64,
+        material: Arc<dyn Material + Send + Sync>,
+    ) -> Self {
         Self {
-            center,
+            center: Ray {
+                origin: center,
+                dir: Vec3::ZERO,
+                time: 0.0,
+            },
+            radius,
+            material,
+        }
+    }
+
+    pub fn moving(
+        center1: Point,
+        center2: Point,
+        radius: f64,
+        material: Arc<dyn Material + Send + Sync>,
+    ) -> Self {
+        Self {
+            center: Ray {
+                origin: center1,
+                dir: center2 - center1,
+                time: 0.0,
+            },
             radius,
             material,
         }
@@ -22,7 +52,8 @@ impl Sphere {
 
 impl Hittable for Sphere {
     fn hit(&self, ray: &Ray, ray_t: &Interval) -> Option<HitRecord> {
-        let oc = self.center - ray.origin;
+        let current_center = self.center.at(ray.time);
+        let oc = current_center - ray.origin;
         let a = ray.dir.length_squared();
         let h = ray.dir.dot(&oc);
         let c = oc.length_squared() - self.radius * self.radius;
@@ -44,7 +75,7 @@ impl Hittable for Sphere {
         }
 
         let point = ray.at(t);
-        let outward_normal = (point - self.center) / self.radius;
+        let outward_normal = (point - current_center) / self.radius;
         Some(HitRecord::new(
             ray,
             t,

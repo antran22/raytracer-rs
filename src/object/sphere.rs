@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::{interval::Interval, material::Material, ray::Ray, vec3::Point};
 
@@ -7,7 +7,17 @@ use super::hittable::{HitRecord, Hittable};
 pub struct Sphere {
     pub center: Point,
     pub radius: f64,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material + Send + Sync>,
+}
+
+impl Sphere {
+    pub fn new(center: Point, radius: f64, material: Arc<dyn Material + Send + Sync>) -> Self {
+        Self {
+            center,
+            radius,
+            material,
+        }
+    }
 }
 
 impl Hittable for Sphere {

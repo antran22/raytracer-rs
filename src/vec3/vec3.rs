@@ -1,5 +1,6 @@
-use std::io::Write;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
+
+use crate::utils::{rand_double, rand_range_double};
 
 #[derive(Copy, Clone, Default, Debug)]
 pub struct Vec3 {
@@ -196,39 +197,4 @@ impl DivAssign<f64> for Vec3 {
     fn div_assign(&mut self, scalar: f64) {
         *self *= 1.0 / scalar
     }
-}
-
-pub use Vec3 as Point;
-impl std::fmt::Display for Point {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({}, {}, {})", self.x, self.y, self.z)
-    }
-}
-impl Point {
-    pub fn dist(&self, b: Point) -> f64 {
-        return (b - *self).length();
-    }
-}
-
-pub use Vec3 as Color;
-
-use crate::interval::Interval;
-use crate::utils::{linear_to_gamma, rand_double, rand_range_double};
-const COLOR_INTENSITY: Interval = Interval::new(0.0, 0.9999);
-impl Color {
-    pub fn print_color(&self, stream: &mut dyn Write) -> Result<(), std::io::Error> {
-        let r = linear_to_gamma(self.x);
-        let g = linear_to_gamma(self.y);
-        let b = linear_to_gamma(self.z);
-
-        let rbyte = (COLOR_INTENSITY.clamp(r) * 256.0) as u8;
-        let gbyte = (COLOR_INTENSITY.clamp(g) * 256.0) as u8;
-        let bbyte = (COLOR_INTENSITY.clamp(b) * 256.0) as u8;
-
-        writeln!(stream, "{} {} {}", rbyte, gbyte, bbyte)
-    }
-
-    pub const BLACK: Self = Self::zero();
-    pub const WHITE: Self = Self::val(1.0, 1.0, 1.0);
-    pub const RED: Self = Self::val(1.0, 0.0, 0.0);
 }

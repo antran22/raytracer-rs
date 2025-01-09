@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::interval::Interval;
 use crate::material::Material;
@@ -10,11 +10,11 @@ pub struct HitRecord {
     pub normal: Vec3,
     pub t: f64,
     pub front_face: bool,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material>,
 }
 
 impl HitRecord {
-    pub fn new(ray: &Ray, t: f64, outward_normal: Vec3, material: Rc<dyn Material>) -> Self {
+    pub fn new(ray: &Ray, t: f64, outward_normal: Vec3, material: Arc<dyn Material>) -> Self {
         let front_face = ray.dir.dot(&outward_normal) < 0.0;
         let normal = if front_face {
             outward_normal

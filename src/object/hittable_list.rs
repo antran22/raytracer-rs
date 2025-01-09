@@ -1,11 +1,11 @@
-use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 use crate::{interval::Interval, ray::Ray};
 
 use super::{HitRecord, Hittable};
 
 pub struct HittableList {
-    pub objects: Vec<Rc<dyn Hittable>>,
+    pub objects: Vec<Arc<dyn Hittable + Send + Sync>>,
 }
 
 impl HittableList {
@@ -15,11 +15,8 @@ impl HittableList {
         }
     }
 
-    pub fn new(objects: Vec<Rc<dyn Hittable>>) -> Self {
-        Self { objects: objects }
-    }
-    pub fn add(&mut self, obj: Rc<dyn Hittable>) {
-        self.objects.push(obj);
+    pub fn add<T: Hittable + Send + Sync + 'static>(&mut self, obj: T) {
+        self.objects.push(Arc::new(obj));
     }
 
     pub fn clear(&mut self) {

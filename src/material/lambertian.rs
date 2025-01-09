@@ -6,6 +6,7 @@ use crate::{
 
 use super::{Material, ScatterResult};
 
+#[derive(Clone, Copy)]
 pub struct Lambertian {
     albedo: Color,
 }

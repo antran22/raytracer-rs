@@ -98,19 +98,19 @@ fn construct_world() -> HittableList {
 
 fn main() {
     let start = Instant::now();
-    let image_width = 400;
+    let image_width = 800;
     let image_height = (image_width as f64 / (16.0 / 9.0)) as u32;
     let world = Arc::new(construct_world());
     let camera: Camera = Camera::new(CameraOption {
         image_width,
         image_height,
         vfov: 20.0,
-        samples_per_pixel: 10,
+        samples_per_pixel: 50,
         max_depth: 50,
         look_from: Point::val(13.0, 2.0, 3.0),
         look_at: Point::val(0.0, 0.0, 0.0),
         vup: Vec3::val(0.0, 1.0, 0.0),
-        defocus_angle: 0.6,
+        defocus_angle: 0.0,
         focus_distance: 10.0,
     });
 
@@ -121,7 +121,9 @@ fn main() {
     let handle = thread::spawn(move || {
         let mut img = ImageBuffer::new(image_width, image_height);
         for (idx, (x, y, color)) in rx.iter().enumerate() {
-            eprint!("\rProcessed: {}/{} pixels", idx + 1, total_pixel);
+            if idx % 100 == 0 {
+                eprint!("\rProcessed: {}/{} pixels", idx + 1, total_pixel);
+            }
             img.put_pixel(x, y, color.to_rgb());
         }
         img.save("./output/image.png").expect("cannot write image");

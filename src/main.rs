@@ -1,6 +1,6 @@
 use camera::{Camera, CameraOption};
 use image::ImageBuffer;
-use object::HittableList;
+use object::{BVHTree, HittableList};
 use rayon::prelude::*;
 use std::{
     sync::{mpsc, Arc},
@@ -22,9 +22,10 @@ mod vec3;
 
 fn main() {
     let start = Instant::now();
-    let image_width = 600;
+    let image_width = 400;
     let image_height = (image_width as f64 / (16.0 / 9.0)) as u32;
-    let world = Arc::new(scene::construct_complex_scene());
+    let world = scene::construct_complex_scene(0.0);
+    let world = BVHTree::from_list(world.objects());
     let camera: Camera = Camera::new(CameraOption {
         image_width,
         image_height,
@@ -45,7 +46,7 @@ fn main() {
     let handle = thread::spawn(move || {
         let mut img = ImageBuffer::new(image_width, image_height);
         for (idx, (x, y, color)) in rx.iter().enumerate() {
-            if idx % 100 == 0 {
+            if idx % 1000 == 999 {
                 eprint!("\rProcessed: {}/{} pixels", idx + 1, total_pixel);
             }
             img.put_pixel(x, y, color.to_rgb());
@@ -60,7 +61,7 @@ fn main() {
             let x = i % image_width as u32;
             let y = i / image_width as u32;
 
-            let color = camera.project_ray::<HittableList>(x, y, &world);
+            let color = camera.project_ray(x, y, &world);
             tx.send((x, y, color)).expect("cannot notify progress");
         });
 

@@ -1,5 +1,6 @@
 use std::f64;
 
+#[derive(Clone, Copy, Debug)]
 pub struct Interval {
     pub min: f64,
     pub max: f64,
@@ -7,7 +8,21 @@ pub struct Interval {
 
 impl Interval {
     pub const fn new(min: f64, max: f64) -> Self {
-        Self { min: min, max: max }
+        Self { min, max }
+    }
+
+    pub fn new_checked(min: f64, max: f64) -> Self {
+        if min > max {
+            return Self { min: max, max: min };
+        }
+        Self { min, max }
+    }
+    
+    pub fn join(a: &Self, b: &Self) -> Self {
+        Self {
+            min: f64::min(a.min, b.min),
+            max: f64::max(a.max, b.max),
+        }
     }
 
     pub fn size(&self) -> f64 {
@@ -22,6 +37,14 @@ impl Interval {
         self.min < x && x < self.max
     }
 
+    pub fn expand(&self, delta: f64) -> Interval {
+        let delta = delta / 2.0;
+        Interval {
+            min: self.min - delta,
+            max: self.max + delta,
+        }
+    }
+
     pub fn clamp(&self, x: f64) -> f64 {
         if x < self.min {
             return self.min;
@@ -32,6 +55,7 @@ impl Interval {
         return x;
     }
 
+    pub const ZERO: Interval = Interval::new(0.0, 0.0);
     pub const EMPTY: Interval = Interval::new(f64::INFINITY, f64::NEG_INFINITY);
     pub const UNIVERSE: Interval = Interval::new(f64::NEG_INFINITY, f64::INFINITY);
     pub const POSITIVE: Interval = Interval::new(0.0, f64::INFINITY);

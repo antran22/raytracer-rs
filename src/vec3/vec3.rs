@@ -1,6 +1,6 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Range, Sub, SubAssign};
 
-use crate::utils::{rand_double, rand_range_double};
+use crate::utils::{rand_double, rand_range};
 
 #[derive(Copy, Clone, Default, Debug)]
 pub struct Vec3 {
@@ -22,6 +22,10 @@ impl Vec3 {
         Self { x: a, y: b, z: c }
     }
 
+    pub const fn all(a: f64) -> Vec3 {
+        Self { x: a, y: a, z: a }
+    }
+
     pub fn rand() -> Self {
         Vec3 {
             x: rand_double(),
@@ -32,9 +36,9 @@ impl Vec3 {
 
     pub fn rand_range(r: Range<f64>) -> Self {
         Vec3 {
-            x: rand_range_double(r.clone()),
-            y: rand_range_double(r.clone()),
-            z: rand_range_double(r.clone()),
+            x: rand_range(r.clone()),
+            y: rand_range(r.clone()),
+            z: rand_range(r.clone()),
         }
     }
 
@@ -87,7 +91,7 @@ impl Vec3 {
         let r_out_parallel = -(1.0 - r_out_perpendicular.length_squared()).abs().sqrt() * normal;
         return r_out_parallel + r_out_perpendicular;
     }
-    
+
     pub const ZERO: Vec3 = Vec3::new(0.0, 0.0, 0.0);
 }
 
@@ -198,5 +202,18 @@ impl Div<f64> for Vec3 {
 impl DivAssign<f64> for Vec3 {
     fn div_assign(&mut self, scalar: f64) {
         *self *= 1.0 / scalar
+    }
+}
+
+impl Index<usize> for Vec3 {
+    type Output = f64;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        match index {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!("Index out of bounds for Vec3"),
+        }
     }
 }

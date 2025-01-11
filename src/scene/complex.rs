@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::{
     material::{Dielectric, Lambertian, Material, Metal},
     object::{HittableList, Sphere},
-    utils::{rand_double, rand_range_double},
+    utils::{rand_double, rand_range},
     vec3::{Color, Point, Vec3},
 };
 
@@ -20,7 +20,7 @@ fn sample_marble_position(a: i32, b: i32) -> Vec3 {
         }
     }
 }
-pub fn construct_complex_scene() -> HittableList {
+pub fn construct_complex_scene(moving_probability: f64) -> HittableList {
     let mut world = HittableList::empty();
 
     let mat_ground = Lambertian::new(Color::new(0.3, 0.3, 0.3));
@@ -34,7 +34,7 @@ pub fn construct_complex_scene() -> HittableList {
     for a in -11..12 {
         for b in -11..12 {
             let marble_position = sample_marble_position(a, b);
-            let should_be_moving = rand_double() > 0.8;
+            let should_be_moving = rand_double() <= moving_probability;
 
             let sphere_material: Arc<dyn Material + Send + Sync> = match rand_double() {
                 0.0..=0.8 => {
@@ -45,18 +45,18 @@ pub fn construct_complex_scene() -> HittableList {
                 0.8..=0.95 => {
                     // metal
                     let albedo = Color::rand_range(0.5..1.0);
-                    let fuzz = rand_range_double(0.0..0.5);
+                    let fuzz = rand_range(0.0..0.5);
                     Arc::new(Metal::new(albedo, fuzz))
                 }
                 _ => {
                     // glass
-                    let ref_idx = rand_range_double(1.33..1.5);
+                    let ref_idx = rand_range(1.33..1.5);
                     Arc::new(Dielectric::new(ref_idx))
                 }
             };
 
             if should_be_moving {
-                let end_position = marble_position + Vec3::new(0.0, rand_range_double(0.0..0.5), 0.0);
+                let end_position = marble_position + Vec3::new(0.0, rand_range(0.0..0.5), 0.0);
                 world.add(Sphere::moving(
                     marble_position,
                     end_position,
@@ -71,6 +71,8 @@ pub fn construct_complex_scene() -> HittableList {
 
     let mat1 = Arc::new(Dielectric::new(1.5));
     world.add(Sphere::stationary(Point::new(0.0, 1.0, 0.0), 1.0, mat1));
+    let mat1 = Arc::new(Dielectric::new(1.0/1.5));
+    world.add(Sphere::stationary(Point::new(0.0, 1.0, 0.0), 0.9, mat1));
 
     let mat2 = Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
     world.add(Sphere::stationary(Point::new(-4.0, 1.0, 0.0), 1.0, mat2));

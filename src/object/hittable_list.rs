@@ -1,21 +1,27 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
+use super::{aabb::AABB, HitRecord, Hittable};
 use crate::{interval::Interval, ray::Ray};
-
-use super::{HitRecord, Hittable};
-
+pub type HittableVec = Vec<Arc<dyn Hittable + Send + Sync>>;
 pub struct HittableList {
-    pub objects: Vec<Arc<dyn Hittable + Send + Sync>>,
+    objects: HittableVec,
+    bbox: AABB,
 }
 
 impl HittableList {
     pub fn empty() -> Self {
         Self {
             objects: Vec::new(),
+            bbox: AABB::ZERO,
         }
+    }
+    
+    pub fn objects(&self) -> &HittableVec {
+        &self.objects
     }
 
     pub fn add<T: Hittable + Send + Sync + 'static>(&mut self, obj: T) {
+        self.bbox = AABB::join(&(obj.bounding_box()), &self.bbox);
         self.objects.push(Arc::new(obj));
     }
 
@@ -36,5 +42,9 @@ impl Hittable for HittableList {
             };
         }
         closest_hit_record
+    }
+
+    fn bounding_box(&self) -> &AABB {
+        &self.bbox
     }
 }

@@ -1,6 +1,9 @@
 use std::ops::Range;
 
-use rand::Rng;
+use rand::{
+    distributions::uniform::{SampleRange, SampleUniform},
+    Rng,
+};
 
 use crate::vec3::Vec3;
 
@@ -8,8 +11,12 @@ pub fn rand_double() -> f64 {
     rand::thread_rng().gen_range(0.0..1.0)
 }
 
-pub fn rand_range_double(r: Range<f64>) -> f64 {
-    rand::thread_rng().gen_range(r.clone())
+pub fn rand_range<T, R>(range: R) -> T
+where
+    T: SampleUniform,
+    R: SampleRange<T>,
+{
+    rand::thread_rng().gen_range(range)
 }
 
 pub fn rand_vector_on_hemisphere(normal: &Vec3) -> Vec3 {
@@ -22,11 +29,7 @@ pub fn rand_vector_on_hemisphere(normal: &Vec3) -> Vec3 {
 
 pub fn rand_vector_in_unit_disk() -> Vec3 {
     loop {
-        let v = Vec3::new(
-            rand_range_double(-1.0..1.0),
-            rand_range_double(-1.0..1.0),
-            0.0,
-        );
+        let v = Vec3::new(rand_range(-1.0..1.0), rand_range(-1.0..1.0), 0.0);
         if v.length_squared() < 1.0 {
             return v;
         }

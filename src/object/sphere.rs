@@ -7,12 +7,16 @@ use crate::{
     vec3::{Point, Vec3},
 };
 
-use super::hittable::{HitRecord, Hittable};
+use super::{
+    aabb::AABB,
+    hittable::{HitRecord, Hittable},
+};
 
 pub struct Sphere {
     center: Ray,
     radius: f64,
     material: Arc<dyn Material + Send + Sync>,
+    bbox: AABB,
 }
 
 impl Sphere {
@@ -21,6 +25,7 @@ impl Sphere {
         radius: f64,
         material: Arc<dyn Material + Send + Sync>,
     ) -> Self {
+        let rvec = Vec3::all(radius);
         Self {
             center: Ray {
                 origin: center,
@@ -29,6 +34,7 @@ impl Sphere {
             },
             radius,
             material,
+            bbox: AABB::between_points(&(center - rvec), &(center + rvec)),
         }
     }
 
@@ -38,6 +44,11 @@ impl Sphere {
         radius: f64,
         material: Arc<dyn Material + Send + Sync>,
     ) -> Self {
+        let rvec = Vec3::all(radius);
+
+        let box1 = AABB::between_points(&(center1 - rvec), &(center1 + rvec));
+        let box2 = AABB::between_points(&(center2 - rvec), &(center2 + rvec));
+
         Self {
             center: Ray {
                 origin: center1,
@@ -46,6 +57,7 @@ impl Sphere {
             },
             radius,
             material,
+            bbox: AABB::join(&box1, &box2),
         }
     }
 }
@@ -82,5 +94,9 @@ impl Hittable for Sphere {
             outward_normal,
             self.material.clone(),
         ))
+    }
+
+    fn bounding_box(&self) -> &AABB {
+        &self.bbox
     }
 }

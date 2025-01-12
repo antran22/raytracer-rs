@@ -9,20 +9,24 @@ use std::{
 };
 use vec3::{Color, Point, Vec3};
 
-mod scene;
 mod camera;
 mod interval;
 mod material;
 mod object;
 mod ray;
+mod scene;
 mod utils;
 mod vec3;
 
-
-
 fn main() {
     let start = Instant::now();
-    let image_width = 400;
+
+    let deep_render = false;
+    let (image_width, samples, max_depth) = if deep_render {
+        (1200, 50, 50)
+    } else {
+        (400, 10, 10)
+    };
     let image_height = (image_width as f64 / (16.0 / 9.0)) as u32;
     let world = scene::construct_complex_scene(0.0);
     let world = BVHTree::from_list(world.objects());
@@ -30,8 +34,8 @@ fn main() {
         image_width,
         image_height,
         vfov: 20.0,
-        samples_per_pixel: 10,
-        max_depth: 50,
+        samples_per_pixel: samples,
+        max_depth,
         look_from: Point::new(13.0, 2.0, 3.0),
         look_at: Point::new(0.0, 0.0, 0.0),
         vup: Vec3::new(0.0, 1.0, 0.0),
@@ -47,7 +51,13 @@ fn main() {
         let mut img = ImageBuffer::new(image_width, image_height);
         for (idx, (x, y, color)) in rx.iter().enumerate() {
             if idx % 1000 == 999 {
-                eprint!("\rProcessed: {}/{} pixels", idx + 1, total_pixel);
+                let duration = Instant::now().duration_since(start);
+                eprint!(
+                    "\rProcessed: {}/{} pixels. Elapsed: {}s             ",
+                    idx + 1,
+                    total_pixel,
+                    duration.as_secs_f64()
+                );
             }
             img.put_pixel(x, y, color.to_rgb());
         }

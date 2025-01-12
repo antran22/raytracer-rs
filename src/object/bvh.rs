@@ -29,12 +29,17 @@ impl BVHTree {
     }
 
     pub fn from_list(objects: &HittableVec) -> Self {
-        let axis = rand_range(0..2);
         let length = objects.len();
         return match length {
             1 => Self::leaf(objects[0].clone()),
             2 => Self::new(objects[0].clone(), objects[1].clone()),
             _ => {
+                let mut bbox = AABB::EMPTY;
+                for obj in objects {
+                    bbox = AABB::join(obj.bounding_box(), &bbox)
+                }
+                let axis = bbox.longest_axis() as usize;
+
                 let mut sortable_objects = objects.clone();
                 sortable_objects.sort_by(|a, b| {
                     let a_interval = a.bounding_box()[axis];
@@ -51,7 +56,11 @@ impl BVHTree {
                 let mid = length / 2;
                 let left_tree = Arc::new(Self::from_list(&sortable_objects[0..mid].to_vec()));
                 let right_tree = Arc::new(Self::from_list(&sortable_objects[mid..].to_vec()));
-                Self::new(left_tree, right_tree)
+                Self {
+                    left: left_tree,
+                    right: right_tree,
+                    bbox,
+                }
             }
         };
     }

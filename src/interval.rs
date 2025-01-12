@@ -60,3 +60,5 @@ impl Interval {
     pub const UNIVERSE: Interval = Interval::new(f64::NEG_INFINITY, f64::INFINITY);
     pub const POSITIVE: Interval = Interval::new(0.0, f64::INFINITY);
 }
+
+

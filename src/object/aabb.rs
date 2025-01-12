@@ -12,9 +12,31 @@ pub struct AABB {
 impl AABB {
     pub const ZERO: AABB = AABB::new(Interval::ZERO, Interval::ZERO, Interval::ZERO);
     pub const EMPTY: AABB = AABB::new(Interval::EMPTY, Interval::EMPTY, Interval::EMPTY);
+    pub const UNIVERSE: AABB =
+        AABB::new(Interval::UNIVERSE, Interval::UNIVERSE, Interval::UNIVERSE);
 
     pub const fn new(x: Interval, y: Interval, z: Interval) -> Self {
         Self { x, y, z }
+    }
+
+    pub fn longest_axis(&self) -> i32 {
+        let x_size = self.x.size();
+        let y_size = self.y.size();
+        let z_size = self.z.size();
+
+        if x_size > y_size {
+            if x_size > z_size {
+                0
+            } else {
+                2
+            }
+        } else {
+            if y_size > z_size {
+                1
+            } else {
+                2
+            }
+        }
     }
 
     pub fn join(box1: &Self, box2: &Self) -> Self {
@@ -76,7 +98,7 @@ impl Index<usize> for AABB {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{vec3::Vec3, interval::Interval};
+    use crate::{interval::Interval, vec3::Vec3};
 
     #[test]
     fn test_aabb_hit() {
@@ -84,7 +106,7 @@ mod tests {
         let aabb = AABB::new(
             Interval::new(1.0, 3.0),
             Interval::new(1.0, 3.0),
-            Interval::new(1.0, 3.0)
+            Interval::new(1.0, 3.0),
         );
 
         // Define a Ray that should intersect the AABB
@@ -94,13 +116,15 @@ mod tests {
             time: 0.0,
         };
 
-
         // The ray should hit the AABB
         match aabb.hit(&ray) {
             Some(interval) => {
                 assert!(interval.min <= interval.max);
-                println!("Ray hits the AABB with intersection interval: {:?}", interval);
-            },
+                println!(
+                    "Ray hits the AABB with intersection interval: {:?}",
+                    interval
+                );
+            }
             None => panic!("Expected the ray to hit the AABB!"),
         }
     }

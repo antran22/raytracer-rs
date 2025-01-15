@@ -24,4 +24,5 @@ pub enum Scene {
     Complex,
     CheckeredSphere,
     Earth,
+    Perlin,
 }

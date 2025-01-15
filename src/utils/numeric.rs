@@ -1,5 +1,3 @@
-use std::ops::Range;
-
 use rand::{
     distributions::uniform::{SampleRange, SampleUniform},
     Rng,
@@ -19,14 +17,6 @@ where
     rand::thread_rng().gen_range(range)
 }
 
-pub fn rand_vector_on_hemisphere(normal: &Vec3) -> Vec3 {
-    let u = Vec3::rand_unit();
-    if u.dot(normal) > 0.0 {
-        return u;
-    }
-    return -u;
-}
-
 pub fn rand_vector_in_unit_disk() -> Vec3 {
     loop {
         let v = Vec3::new(rand_range(-1.0..1.0), rand_range(-1.0..1.0), 0.0);
@@ -40,5 +30,5 @@ pub fn linear_to_gamma(linear: f64) -> f64 {
     if linear > 0.0 {
         return linear.sqrt();
     }
-    return 0.0;
+    0.0
 }

@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
-use image::{DynamicImage, ImageReader, Rgb32FImage, RgbImage};
+use image::{ImageReader, RgbImage};
 
 use crate::{
     interval::Interval,
-    vec3::{Color, Vec3},
+    vec3::{Color, Point},
 };
 
 use super::Texture;
@@ -26,7 +26,7 @@ impl ImageTexture {
 }
 
 impl Texture for ImageTexture {
-    fn value(&self, u: f64, v: f64, _p: Vec3) -> Color {
+    fn value(&self, u: f64, v: f64, _p: &Point) -> Color {
         let img = self.img.clone();
         if img.height() == 0 {
             return Color::new(0.0, 1.0, 1.0);

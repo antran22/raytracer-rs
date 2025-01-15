@@ -33,7 +33,7 @@ impl CheckeredTexture {
 }
 
 impl Texture for CheckeredTexture {
-    fn value(&self, u: f64, v: f64, p: Point) -> Color {
+    fn value(&self, u: f64, v: f64, p: &Point) -> Color {
         let u_int = (u * self.inv_scale).floor() as i32;
         let v_int = (v * self.inv_scale).floor() as i32;
 

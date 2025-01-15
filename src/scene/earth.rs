@@ -4,7 +4,7 @@ use crate::{
     camera::{Camera, CameraOption, OutputQuality},
     material::Lambertian,
     object::{HittableList, Sphere},
-    texture::{CheckeredTexture, ImageTexture},
+    texture::ImageTexture,
     vec3::{Color, Point, Vec3},
 };
 

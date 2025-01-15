@@ -40,7 +40,7 @@ impl Material for Lambertian {
         };
         let attenuation = self
             .texture
-            .value(hit_record.u, hit_record.v, hit_record.point);
+            .value(hit_record.u, hit_record.v, &hit_record.point);
         Some(ScatterResult {
             attenuation,
             ray: scattered,

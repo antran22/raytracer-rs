@@ -1,19 +1,27 @@
+use std::sync::Arc;
+
 use crate::{
     object::HitRecord,
     ray::Ray,
+    texture::{SolidColor, Texture},
     vec3::{Color, Vec3},
 };
 
 use super::{Material, ScatterResult};
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Lambertian {
-    albedo: Color,
+    texture: Arc<dyn Texture + Sync + Send>,
 }
 
 impl Lambertian {
-    pub const fn new(albedo: Color) -> Self {
-        Self { albedo: albedo }
+    pub fn new_solid_color(albedo: Color) -> Self {
+        Self {
+            texture: Arc::new(SolidColor::new(albedo)),
+        }
+    }
+    pub fn new(texture: Arc<dyn Texture + Sync + Send>) -> Self {
+        Self { texture }
     }
 }
 
@@ -30,8 +38,11 @@ impl Material for Lambertian {
             time: r_in.time,
             dir: scatter_dir,
         };
+        let attenuation = self
+            .texture
+            .value(hit_record.u, hit_record.v, hit_record.point);
         Some(ScatterResult {
-            attenuation: self.albedo,
+            attenuation,
             ray: scattered,
         })
     }

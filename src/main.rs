@@ -1,47 +1,47 @@
-use camera::{Camera, CameraOption};
+use args::{Args, Mode, Scene};
+use camera::OutputQuality;
+use clap::Parser;
 use image::ImageBuffer;
-use object::{BVHTree, HittableList};
+use object::BVHTree;
 use rayon::prelude::*;
-use std::{
-    sync::{mpsc, Arc},
-    thread,
-    time::Instant,
-};
-use vec3::{Color, Point, Vec3};
+use std::{sync::mpsc, thread, time::Instant};
+use vec3::Color;
 
+mod args;
 mod camera;
 mod interval;
 mod material;
 mod object;
 mod ray;
 mod scene;
+mod texture;
 mod utils;
 mod vec3;
 
 fn main() {
+    let args = Args::parse();
     let start = Instant::now();
 
-    let deep_render = false;
-    let (image_width, samples, max_depth) = if deep_render {
-        (1200, 50, 50)
-    } else {
-        (400, 10, 10)
+    let (image_width, samples, max_depth) = match args.mode {
+        Mode::Slow => (1200, 50, 50),
+        Mode::Fast => (400, 10, 50),
     };
     let image_height = (image_width as f64 / (16.0 / 9.0)) as u32;
-    let world = scene::construct_complex_scene(0.0);
-    let world = BVHTree::from_list(world.objects());
-    let camera: Camera = Camera::new(CameraOption {
+
+    let quality = OutputQuality {
         image_width,
         image_height,
-        vfov: 20.0,
         samples_per_pixel: samples,
         max_depth,
-        look_from: Point::new(13.0, 2.0, 3.0),
-        look_at: Point::new(0.0, 0.0, 0.0),
-        vup: Vec3::new(0.0, 1.0, 0.0),
-        defocus_angle: 0.0,
-        focus_distance: 10.0,
-    });
+    };
+
+    let (world, camera) = match args.scene {
+        Scene::Complex => scene::construct_complex_scene(0.1, quality),
+        Scene::CheckeredSphere => scene::construct_checkered_sphere_scene(quality),
+        Scene::Earth => scene::construct_earth_scene(quality),
+    };
+
+    let world = BVHTree::from_list(world.objects());
 
     let (tx, rx) = mpsc::channel::<(u32, u32, Color)>();
 
@@ -68,8 +68,8 @@ fn main() {
     (0..total_pixel)
         .into_par_iter() // Convert to parallel iterator
         .for_each(|i| {
-            let x = i % image_width as u32;
-            let y = i / image_width as u32;
+            let x = i % image_width;
+            let y = i / image_width;
 
             let color = camera.project_ray(x, y, &world);
             tx.send((x, y, color)).expect("cannot notify progress");

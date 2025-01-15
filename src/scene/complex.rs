@@ -1,8 +1,10 @@
 use std::sync::Arc;
 
 use crate::{
+    camera::{Camera, CameraOption, OutputQuality},
     material::{Dielectric, Lambertian, Material, Metal},
     object::{HittableList, Sphere},
+    texture::CheckeredTexture,
     utils::{rand_double, rand_range},
     vec3::{Color, Point, Vec3},
 };
@@ -20,10 +22,17 @@ fn sample_marble_position(a: i32, b: i32) -> Vec3 {
         }
     }
 }
-pub fn construct_complex_scene(moving_probability: f64) -> HittableList {
+pub fn construct_complex_scene(
+    moving_probability: f64,
+    output_quality: OutputQuality,
+) -> (HittableList, Camera) {
     let mut world = HittableList::empty();
 
-    let mat_ground = Lambertian::new(Color::new(0.3, 0.3, 0.3));
+    let mat_ground = Lambertian::new(Arc::new(CheckeredTexture::new_from_colors(
+        0.3,
+        Color::new(0.2, 0.3, 0.1),
+        Color::all(0.9),
+    )));
     world.add(Sphere::stationary(
         Point::new(0.0, -1000.0, 0.0),
         1000.0,
@@ -40,7 +49,7 @@ pub fn construct_complex_scene(moving_probability: f64) -> HittableList {
                 0.0..=0.8 => {
                     // lambertian
                     let albedo = Color::rand() * Color::rand();
-                    Arc::new(Lambertian::new(albedo))
+                    Arc::new(Lambertian::new_solid_color(albedo))
                 }
                 0.8..=0.95 => {
                     // metal
@@ -71,14 +80,24 @@ pub fn construct_complex_scene(moving_probability: f64) -> HittableList {
 
     let mat1 = Arc::new(Dielectric::new(1.5));
     world.add(Sphere::stationary(Point::new(0.0, 1.0, 0.0), 1.0, mat1));
-    let mat1 = Arc::new(Dielectric::new(1.0/1.5));
+    let mat1 = Arc::new(Dielectric::new(1.0 / 1.5));
     world.add(Sphere::stationary(Point::new(0.0, 1.0, 0.0), 0.9, mat1));
 
-    let mat2 = Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
+    let mat2 = Arc::new(Lambertian::new_solid_color(Color::new(0.4, 0.2, 0.1)));
     world.add(Sphere::stationary(Point::new(-4.0, 1.0, 0.0), 1.0, mat2));
 
     let mat3 = Arc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0));
     world.add(Sphere::stationary(Point::new(4.0, 1.0, 0.0), 1.0, mat3));
 
-    world
+    let camera: Camera = Camera::new(CameraOption {
+        vfov: 20.0,
+        look_from: Point::new(13.0, 2.0, 3.0),
+        look_at: Point::new(0.0, 0.0, 0.0),
+        vup: Vec3::new(0.0, 1.0, 0.0),
+        defocus_angle: 0.0,
+        focus_distance: 10.0,
+        quality: output_quality,
+    });
+
+    (world, camera)
 }

@@ -16,21 +16,23 @@ const RAY_INTERVAL: Interval = Interval {
     max: f64::INFINITY,
 };
 
-pub struct CameraOption {
+pub struct OutputQuality {
     pub image_width: u32,
     pub image_height: u32,
+    pub samples_per_pixel: u32,
+    pub max_depth: u32,
+}
 
+pub struct CameraOption {
     pub vfov: f64,
 
     pub look_from: Point,
     pub look_at: Point,
     pub vup: Vec3,
 
-    pub samples_per_pixel: u32,
-    pub max_depth: u32,
-
     pub defocus_angle: f64,
     pub focus_distance: f64,
+    pub quality: OutputQuality,
 }
 
 #[derive(Clone, Copy)]
@@ -54,6 +56,12 @@ pub struct Camera {
 
 impl Camera {
     pub fn new(opt: CameraOption) -> Camera {
+        let OutputQuality {
+            image_width,
+            image_height,
+            samples_per_pixel,
+            max_depth,
+        } = opt.quality;
         let h = (opt.vfov.to_radians() / 2.0).tan();
 
         let w = (opt.look_from - opt.look_at).to_unit();
@@ -61,19 +69,19 @@ impl Camera {
         let v = Vec3::cross(&w, &u);
 
         let viewport_height = 2.0 * h * opt.focus_distance;
-        let viewport_width = viewport_height * (opt.image_width as f64 / opt.image_height as f64);
+        let viewport_width = viewport_height * (image_width as f64 / image_height as f64);
 
         let viewport_u = viewport_width * u;
         let viewport_v = -viewport_height * v;
 
-        let pixel_delta_u = viewport_u / (opt.image_width as f64);
-        let pixel_delta_v = viewport_v / (opt.image_height as f64);
+        let pixel_delta_u = viewport_u / (image_width as f64);
+        let pixel_delta_v = viewport_v / (image_height as f64);
 
         let viewport_upper_left =
             opt.look_from - opt.focus_distance * w - viewport_u / 2.0 - viewport_v / 2.0;
         let pixel00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) * 0.5;
 
-        let pixel_samples_scale = 1.0 / opt.samples_per_pixel as f64;
+        let pixel_samples_scale = 1.0 / samples_per_pixel as f64;
 
         let defocus_radius = opt.focus_distance * (opt.defocus_angle / 2.0).to_radians().tan();
         let defocus_disk_u = u * defocus_radius;
@@ -86,9 +94,9 @@ impl Camera {
             pixel_delta_u,
             pixel_delta_v,
 
-            samples_per_pixel: opt.samples_per_pixel,
+            samples_per_pixel,
             pixel_samples_scale,
-            max_depth: opt.max_depth,
+            max_depth,
 
             defocus_disk_u,
             defocus_disk_v,
@@ -97,7 +105,7 @@ impl Camera {
     }
 
     fn ray_color<T: Hittable>(object: &T, ray: &Ray, depth: u32) -> Color {
-        if depth <= 0 {
+        if depth == 0 {
             return BLACK;
         }
         if let Some(record) = object.hit(ray, &RAY_INTERVAL) {
@@ -114,7 +122,7 @@ impl Camera {
         }
         let unit_dir = ray.dir.to_unit();
         let a = 0.5 * (unit_dir.y + 1.0);
-        return (1.0 - a) * WHITE + a * BLUE;
+        (1.0 - a) * WHITE + a * BLUE
     }
 
     pub fn project_ray<T: Hittable>(&self, i: u32, j: u32, world: &T) -> Color {
@@ -154,6 +162,6 @@ impl Camera {
 
     fn sample_defocus_disk(&self) -> Point {
         let p = rand_vector_in_unit_disk();
-        return self.position + (p.x * self.defocus_disk_u) + (p.y * self.defocus_disk_v);
+        self.position + (p.x * self.defocus_disk_u) + (p.y * self.defocus_disk_v)
     }
 }

@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{f64::consts::PI, sync::Arc};
 
 use crate::{
     interval::Interval,
@@ -60,6 +60,16 @@ impl Sphere {
             bbox: AABB::join(&box1, &box2),
         }
     }
+
+    pub fn get_sphere_uv(point: &Point) -> (f64, f64) {
+        let theta = f64::acos(-point.y);
+        let phi = f64::atan2(-point.z, point.x) + PI;
+
+        let u = phi / (2.0 * PI);
+        let v = theta / PI;
+
+        (u, v)
+    }
 }
 
 impl Hittable for Sphere {
@@ -88,10 +98,14 @@ impl Hittable for Sphere {
 
         let point = ray.at(t);
         let outward_normal = (point - current_center) / self.radius;
+
+        let (u, v) = Self::get_sphere_uv(&outward_normal);
         Some(HitRecord::new(
             ray,
             t,
             outward_normal,
+            u,
+            v,
             self.material.clone(),
         ))
     }

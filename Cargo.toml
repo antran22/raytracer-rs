@@ -9,6 +9,7 @@ name = "raytracing"
 path = "src/main.rs"
 
 [dependencies]
+clap = { version = "4.5.26", features = ["derive"] }
 image = "0.25.5"
 rand = "^0.8.5"
 rayon = "1.10.0"

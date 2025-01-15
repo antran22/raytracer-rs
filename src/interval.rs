@@ -17,7 +17,7 @@ impl Interval {
         }
         Self { min, max }
     }
-    
+
     pub fn join(a: &Self, b: &Self) -> Self {
         Self {
             min: f64::min(a.min, b.min),
@@ -56,9 +56,8 @@ impl Interval {
     }
 
     pub const ZERO: Interval = Interval::new(0.0, 0.0);
+    pub const ONE: Interval = Interval::new(0.0, 1.0);
     pub const EMPTY: Interval = Interval::new(f64::INFINITY, f64::NEG_INFINITY);
     pub const UNIVERSE: Interval = Interval::new(f64::NEG_INFINITY, f64::INFINITY);
     pub const POSITIVE: Interval = Interval::new(0.0, f64::INFINITY);
 }
-
-

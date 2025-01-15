@@ -5,7 +5,7 @@ use crate::{
     vec3::{Color, Vec3},
 };
 
-use super::{Material, ScatterResult};
+use super::{Material, MaterialInteractResult};
 
 pub struct Dielectric {
     refraction_index: f64,
@@ -23,7 +23,7 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, r_in: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
+    fn interact(&self, r_in: &Ray, hit_record: &HitRecord) -> MaterialInteractResult {
         let HitRecord { point, normal, .. } = hit_record;
         let ri = if hit_record.front_face {
             1.0 / self.refraction_index
@@ -42,13 +42,13 @@ impl Material for Dielectric {
             unit_dir.refract(normal, ri)
         };
 
-        Some(ScatterResult {
+        MaterialInteractResult::Scatter {
             attenuation: Color::WHITE,
             ray: Ray {
                 origin: *point,
                 time: r_in.time,
                 dir,
             },
-        })
+        }
     }
 }

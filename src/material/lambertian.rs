@@ -7,7 +7,7 @@ use crate::{
     vec3::{Color, Vec3},
 };
 
-use super::{Material, ScatterResult};
+use super::{Material, MaterialInteractResult};
 
 #[derive(Clone)]
 pub struct Lambertian {
@@ -26,7 +26,7 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, r_in: &Ray, hit_record: &HitRecord) -> Option<super::ScatterResult> {
+    fn interact(&self, r_in: &Ray, hit_record: &HitRecord) -> MaterialInteractResult {
         let _ = r_in;
         let mut scatter_dir = hit_record.normal + Vec3::rand_unit();
         if scatter_dir.is_near_zero() {
@@ -41,9 +41,9 @@ impl Material for Lambertian {
         let attenuation = self
             .texture
             .value(hit_record.u, hit_record.v, &hit_record.point);
-        Some(ScatterResult {
+        MaterialInteractResult::Scatter {
             attenuation,
             ray: scattered,
-        })
+        }
     }
 }

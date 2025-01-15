@@ -1,6 +1,6 @@
 use crate::{
     interval::Interval,
-    material::ScatterResult,
+    material::MaterialInteractResult,
     object::Hittable,
     ray::Ray,
     utils::{rand_double, rand_vector_in_unit_disk},
@@ -109,16 +109,13 @@ impl Camera {
             return BLACK;
         }
         if let Some(record) = object.hit(ray, &RAY_INTERVAL) {
-            if let Some(scatter_result) = record.material.scatter(ray, &record) {
-                let ScatterResult {
-                    attenuation,
-                    ray: scattered_ray,
-                } = scatter_result;
-
-                return attenuation * Camera::ray_color(object, &scattered_ray, depth - 1);
-            }
-
-            return Color::BLACK;
+            return match record.material.interact(ray, &record) {
+                MaterialInteractResult::Scatter { attenuation, ray } => {
+                    attenuation * Camera::ray_color(object, &ray, depth - 1)
+                }
+                MaterialInteractResult::Emitted { .. } => Color::WHITE,
+                MaterialInteractResult::None => Color::BLACK,
+            };
         }
         let unit_dir = ray.dir.to_unit();
         let a = 0.5 * (unit_dir.y + 1.0);

@@ -1,9 +1,11 @@
 use crate::{object::HitRecord, ray::Ray, vec3::Color};
 
-pub struct ScatterResult {
-    pub attenuation: Color,
-    pub ray: Ray,
+pub enum MaterialInteractResult {
+    Scatter { attenuation: Color, ray: Ray },
+    Emitted { color: Color },
+    None,
 }
+
 pub trait Material {
-    fn scatter(&self, r_in: &Ray, hit_record: &HitRecord) -> Option<ScatterResult>;
+    fn interact(&self, r_in: &Ray, hit_record: &HitRecord) -> MaterialInteractResult;
 }

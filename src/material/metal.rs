@@ -4,7 +4,7 @@ use crate::{
     vec3::{Color, Vec3},
 };
 
-use super::{Material, ScatterResult};
+use super::{Material, MaterialInteractResult};
 
 pub struct Metal {
     albedo: Color,
@@ -14,29 +14,29 @@ pub struct Metal {
 impl Metal {
     pub fn new(albedo: Color, fuzz: f64) -> Self {
         Self {
-            albedo: albedo,
-            fuzz: f64::min(f64::max(fuzz, 0.0), 1.0),
+            albedo,
+            fuzz: fuzz.clamp(0.0, 1.0),
         }
     }
 }
 
 impl Material for Metal {
-    fn scatter(&self, r_in: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
+    fn interact(&self, r_in: &Ray, hit_record: &HitRecord) -> MaterialInteractResult {
         let mut reflected_dir = r_in.dir.reflect(&hit_record.normal);
         if self.fuzz > 0.0 {
             reflected_dir = reflected_dir.to_unit() + self.fuzz * Vec3::rand_unit();
         }
         if reflected_dir.dot(&hit_record.normal) <= 0.0 {
-            return None;
+            return MaterialInteractResult::None;
         }
         let scattered_ray = Ray {
             dir: reflected_dir,
             origin: hit_record.point,
             time: r_in.time,
         };
-        Some(ScatterResult {
+        MaterialInteractResult::Scatter {
             attenuation: self.albedo,
             ray: scattered_ray,
-        })
+        }
     }
 }

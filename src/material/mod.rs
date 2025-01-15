@@ -1,10 +1,10 @@
 mod material;
 
+mod dielectric;
 mod lambertian;
 mod metal;
-mod dielectric;
 
-pub use material::{Material, ScatterResult};
-pub use lambertian::Lambertian;
-pub use metal::Metal;
 pub use dielectric::Dielectric;
+pub use lambertian::Lambertian;
+pub use material::{Material, MaterialInteractResult};
+pub use metal::Metal;

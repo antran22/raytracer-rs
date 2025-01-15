@@ -1,11 +1,11 @@
-use crate::vec3::Point;
+use crate::vec3::{Point, Vec3};
 
 use super::rand_range;
 
-type TrilinearData = [[[f64; 2]; 2]; 2];
+type TrilinearData = [[[Vec3; 2]; 2]; 2];
 const POINT_COUNT: usize = 256;
 pub struct Perlin {
-    randfloat: [f64; POINT_COUNT],
+    rand_vec: [Vec3; POINT_COUNT],
     perm_x: [usize; POINT_COUNT],
     perm_y: [usize; POINT_COUNT],
     perm_z: [usize; POINT_COUNT],
@@ -13,17 +13,30 @@ pub struct Perlin {
 
 pub trait NoiseFunction {
     fn noise(&self, point: &Point) -> f64;
+    fn turbulence(&self, point: &Point) -> f64 {
+        let mut accum = 0.0;
+        let mut temp_p = *point;
+        let mut weight = 1.0;
+
+        for _ in 0..7 {
+            accum += weight * self.noise(&temp_p);
+            weight *= 0.5;
+            temp_p *= 2.0;
+        }
+
+        accum.abs()
+    }
 }
 
 impl Perlin {
     pub fn new() -> Self {
-        let mut randfloat = [0.0; POINT_COUNT];
-        for item in randfloat.iter_mut().take(POINT_COUNT) {
-            *item = rand_range(0.0..1.0);
+        let mut rand_vec = [Vec3::ZERO; POINT_COUNT];
+        for item in rand_vec.iter_mut().take(POINT_COUNT) {
+            *item = Vec3::rand_range(-1.0..1.0);
         }
 
         Self {
-            randfloat,
+            rand_vec,
             perm_x: Self::generate_perm(),
             perm_y: Self::generate_perm(),
             perm_z: Self::generate_perm(),
@@ -62,11 +75,17 @@ impl Perlin {
     }
 
     fn trilinear_interpolate(c: TrilinearData, u: f64, v: f64, w: f64) -> f64 {
+        let [uu, vv, ww] = [u, v, w].map(Self::hermitian_cubic);
+
         let mut accum = 0.0;
         for (i, c) in c.iter().enumerate() {
             for (j, c) in c.iter().enumerate() {
                 for (k, c) in c.iter().enumerate() {
-                    accum += Self::terp(i, u) * Self::terp(j, v) * Self::terp(k, w) * c
+                    let weight_v = Vec3::new(u - i as f64, v - j as f64, w - k as f64);
+                    accum += Self::terp(i, uu)
+                        * Self::terp(j, vv)
+                        * Self::terp(k, ww)
+                        * Vec3::dot(c, &weight_v);
                 }
             }
         }
@@ -80,16 +99,14 @@ impl NoiseFunction for Perlin {
             perm_x,
             perm_y,
             perm_z,
-            randfloat,
+            rand_vec,
         } = self;
 
         let (i, u) = Self::floor_and_fraction(p.x);
         let (j, v) = Self::floor_and_fraction(p.y);
         let (k, w) = Self::floor_and_fraction(p.z);
 
-        let [u, v, w] = [u, v, w].map(Self::hermitian_cubic);
-
-        let mut c: TrilinearData = [[[0.0; 2]; 2]; 2];
+        let mut c: TrilinearData = [[[Vec3::ZERO; 2]; 2]; 2];
 
         for (di, c) in c.iter_mut().enumerate() {
             for (dj, c) in c.iter_mut().enumerate() {
@@ -97,7 +114,7 @@ impl NoiseFunction for Perlin {
                     let di = ((i + di as isize) & 255) as usize;
                     let dj = ((j + dj as isize) & 255) as usize;
                     let dk = ((k + dk as isize) & 255) as usize;
-                    *c = randfloat[perm_x[di] ^ perm_y[dj] ^ perm_z[dk]];
+                    *c = rand_vec[perm_x[di] ^ perm_y[dj] ^ perm_z[dk]];
                 }
             }
         }

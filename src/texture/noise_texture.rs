@@ -19,9 +19,10 @@ impl NoiseTexture<Perlin> {
     }
 }
 
+const MID_GREY: Color = Color::all(0.5);
+
 impl<T: NoiseFunction> Texture for NoiseTexture<T> {
     fn value(&self, _u: f64, _v: f64, p: &Point) -> Color {
-        let p = *p * self.scale;
-        Color::WHITE * self.noise_func.noise(&p)
+        MID_GREY * (1.0 + f64::sin(self.scale * p.z + 10.0 * self.noise_func.turbulence(p)))
     }
 }

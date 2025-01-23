@@ -1,10 +1,13 @@
-pub mod hittable;
-pub mod sphere;
-pub mod hittable_list;
-pub mod aabb;
-pub mod bvh;
+mod aabb;
+mod bvh;
+mod hittable;
+mod hittable_list;
+mod quad;
+mod sphere;
 
-pub use sphere::Sphere;
+pub use aabb::Aabb;
+pub use bvh::BVHTree;
 pub use hittable::{HitRecord, Hittable};
 pub use hittable_list::HittableList;
-pub use bvh::BVHTree;
+pub use sphere::Sphere;
+

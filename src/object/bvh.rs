@@ -1,22 +1,22 @@
 use std::{cmp::Ordering, sync::Arc};
 
-use crate::{interval::Interval, ray::Ray, utils::rand_range};
+use crate::{interval::Interval, ray::Ray};
 
-use super::{aabb::AABB, hittable_list::HittableVec, Hittable};
+use super::{aabb::Aabb, hittable_list::HittableVec, Hittable};
 
 // Implementation of the Bounding Volume Hierarchy system
 pub struct BVHTree {
     left: Arc<dyn Hittable + Send + Sync>,
     right: Arc<dyn Hittable + Send + Sync>,
-    bbox: AABB,
+    bbox: Aabb,
 }
 
 impl BVHTree {
     fn new(left: Arc<dyn Hittable + Send + Sync>, right: Arc<dyn Hittable + Send + Sync>) -> Self {
         Self {
-            bbox: AABB::join(&left.bounding_box(), &right.bounding_box()),
-            left: left,
-            right: right,
+            bbox: Aabb::join(&left.bounding_box(), &right.bounding_box()),
+            left,
+            right,
         }
     }
 
@@ -34,9 +34,9 @@ impl BVHTree {
             1 => Self::leaf(objects[0].clone()),
             2 => Self::new(objects[0].clone(), objects[1].clone()),
             _ => {
-                let mut bbox = AABB::EMPTY;
+                let mut bbox = Aabb::EMPTY;
                 for obj in objects {
-                    bbox = AABB::join(obj.bounding_box(), &bbox)
+                    bbox = Aabb::join(obj.bounding_box(), &bbox)
                 }
                 let axis = bbox.longest_axis() as usize;
 
@@ -83,7 +83,7 @@ impl Hittable for BVHTree {
         }
     }
 
-    fn bounding_box(&self) -> &AABB {
+    fn bounding_box(&self) -> &Aabb {
         &self.bbox
     }
 }

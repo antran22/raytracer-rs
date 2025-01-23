@@ -37,6 +37,14 @@ impl Interval {
         self.min < x && x < self.max
     }
 
+    pub fn pad(&self, delta: f64) -> Interval {
+        if self.size() > delta {
+            self.clone()
+        } else {
+            self.pad(delta)
+        }
+    }
+
     pub fn expand(&self, delta: f64) -> Interval {
         let delta = delta / 2.0;
         Interval {

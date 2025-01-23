@@ -3,20 +3,41 @@ use crate::{interval::Interval, ray::Ray, vec3::Point};
 use std::ops::Index;
 
 #[derive(Clone, Copy)]
-pub struct AABB {
+pub struct Aabb {
     pub x: Interval,
     pub y: Interval,
     pub z: Interval,
 }
 
-impl AABB {
-    pub const ZERO: AABB = AABB::new(Interval::ZERO, Interval::ZERO, Interval::ZERO);
-    pub const EMPTY: AABB = AABB::new(Interval::EMPTY, Interval::EMPTY, Interval::EMPTY);
-    pub const UNIVERSE: AABB =
-        AABB::new(Interval::UNIVERSE, Interval::UNIVERSE, Interval::UNIVERSE);
+impl Aabb {
+    pub const ZERO: Aabb = Aabb::new_static(Interval::ZERO, Interval::ZERO, Interval::ZERO);
+    pub const EMPTY: Aabb = Aabb::new_static(Interval::EMPTY, Interval::EMPTY, Interval::EMPTY);
+    pub const UNIVERSE: Aabb =
+        Aabb::new_static(Interval::UNIVERSE, Interval::UNIVERSE, Interval::UNIVERSE);
 
-    pub const fn new(x: Interval, y: Interval, z: Interval) -> Self {
+    pub const fn new_static(x: Interval, y: Interval, z: Interval) -> Self {
         Self { x, y, z }
+    }
+
+    pub fn new(x: Interval, y: Interval, z: Interval) -> Self {
+        let [x, y, z] = [x, y, z].map(|i| i.pad(0.001));
+        Self { x, y, z }
+    }
+
+    pub fn join(box1: &Self, box2: &Self) -> Self {
+        Self::new(
+            Interval::join(&box1.x, &box2.x),
+            Interval::join(&box1.y, &box2.y),
+            Interval::join(&box1.z, &box2.z),
+        )
+    }
+
+    pub fn between_points(a: &Point, b: &Point) -> Self {
+        Self::new(
+            Interval::new_checked(a.x, b.x),
+            Interval::new_checked(a.y, b.y),
+            Interval::new_checked(a.z, b.z),
+        )
     }
 
     pub fn longest_axis(&self) -> i32 {
@@ -30,28 +51,10 @@ impl AABB {
             } else {
                 2
             }
+        } else if y_size > z_size {
+            1
         } else {
-            if y_size > z_size {
-                1
-            } else {
-                2
-            }
-        }
-    }
-
-    pub fn join(box1: &Self, box2: &Self) -> Self {
-        Self {
-            x: Interval::join(&box1.x, &box2.x),
-            y: Interval::join(&box1.y, &box2.y),
-            z: Interval::join(&box1.z, &box2.z),
-        }
-    }
-
-    pub fn between_points(a: &Point, b: &Point) -> Self {
-        Self {
-            x: Interval::new_checked(a.x, b.x),
-            y: Interval::new_checked(a.y, b.y),
-            z: Interval::new_checked(a.z, b.z),
+            2
         }
     }
 
@@ -78,11 +81,11 @@ impl AABB {
                 return None;
             }
         }
-        return Some(Interval::new(ray_min, ray_max));
+        Some(Interval::new(ray_min, ray_max))
     }
 }
 
-impl Index<usize> for AABB {
+impl Index<usize> for Aabb {
     type Output = Interval;
 
     fn index(&self, i: usize) -> &Self::Output {
@@ -103,7 +106,7 @@ mod tests {
     #[test]
     fn test_aabb_hit() {
         // Define a simple AABB
-        let aabb = AABB::new(
+        let aabb = Aabb::new(
             Interval::new(1.0, 3.0),
             Interval::new(1.0, 3.0),
             Interval::new(1.0, 3.0),

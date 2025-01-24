@@ -25,4 +25,5 @@ pub enum Scene {
     CheckeredSphere,
     Earth,
     Perlin,
+    Quads,
 }

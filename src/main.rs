@@ -40,6 +40,7 @@ fn main() {
         Scene::CheckeredSphere => scene::construct_checkered_sphere_scene(quality),
         Scene::Earth => scene::construct_earth_scene(quality),
         Scene::Perlin => scene::construct_perlin_spheres(quality),
+        Scene::Quads => scene::construct_quads_scene(quality),
     };
 
     let world = BVHTree::from_list(world.objects());

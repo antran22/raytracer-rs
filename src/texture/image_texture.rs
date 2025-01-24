@@ -32,8 +32,8 @@ impl Texture for ImageTexture {
             return Color::new(0.0, 1.0, 1.0);
         }
 
-        let u = Interval::ONE.clamp(u);
-        let v = 1.0 - Interval::ONE.clamp(v);
+        let u = Interval::UNIT.clamp(u);
+        let v = 1.0 - Interval::UNIT.clamp(v);
 
         let i = (u * (img.width() as f64)) as u32;
         let j = (v * (img.height() as f64)) as u32;

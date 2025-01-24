@@ -2,7 +2,7 @@
 use crate::{interval::Interval, ray::Ray, vec3::Point};
 use std::ops::Index;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Aabb {
     pub x: Interval,
     pub y: Interval,

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::vec3::{Color, Point};
 
-use super::{solid_color::SolidColor, Texture};
+use super::{solid_color::SolidColorTexture, Texture};
 
 pub struct CheckeredTexture {
     inv_scale: f64,
@@ -26,8 +26,8 @@ impl CheckeredTexture {
     pub fn new_from_colors(scale: f64, even: Color, odd: Color) -> Self {
         Self::new(
             scale,
-            Arc::new(SolidColor::new(even)),
-            Arc::new(SolidColor::new(odd)),
+            Arc::new(SolidColorTexture::new(even)),
+            Arc::new(SolidColorTexture::new(odd)),
         )
     }
 }

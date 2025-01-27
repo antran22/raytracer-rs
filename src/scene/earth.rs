@@ -35,6 +35,7 @@ pub fn construct_earth_scene(quality: OutputQuality) -> (HittableList, Camera) {
     ));
 
     let camera: Camera = Camera::new(CameraOption {
+        bg_color: Color::new(0.7, 0.8, 1.0),
         vfov: 20.0,
         look_from: Point::new(12.0, 3.0, 12.0),
         look_at: Point::new(0.0, 3.0, 0.0),

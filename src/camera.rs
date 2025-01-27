@@ -33,6 +33,7 @@ pub struct CameraOption {
     pub defocus_angle: f64,
     pub focus_distance: f64,
     pub quality: OutputQuality,
+    pub bg_color: Color,
 }
 
 #[derive(Clone, Copy)]
@@ -52,6 +53,7 @@ pub struct Camera {
 
     defocus_disk_u: Vec3,
     defocus_disk_v: Vec3,
+    bg_color: Color,
 }
 
 impl Camera {
@@ -88,6 +90,7 @@ impl Camera {
         let defocus_disk_v = v * defocus_radius;
 
         Camera {
+            bg_color: opt.bg_color,
             position: opt.look_from,
 
             pixel00_loc,
@@ -104,29 +107,28 @@ impl Camera {
         }
     }
 
-    fn ray_color<T: Hittable>(object: &T, ray: &Ray, depth: u32) -> Color {
+    fn ray_color<T: Hittable>(&self, object: &T, ray: &Ray, depth: u32) -> Color {
         if depth == 0 {
             return BLACK;
         }
         if let Some(record) = object.hit(ray, &RAY_INTERVAL) {
             return match record.material.interact(ray, &record) {
                 MaterialInteractResult::Scatter { attenuation, ray } => {
-                    attenuation * Camera::ray_color(object, &ray, depth - 1)
+                    attenuation * self.ray_color(object, &ray, depth - 1)
                 }
-                MaterialInteractResult::Emitted { .. } => Color::WHITE,
+                MaterialInteractResult::Emitted { color } => color,
                 MaterialInteractResult::None => Color::BLACK,
             };
         }
-        let unit_dir = ray.dir.to_unit();
-        let a = 0.5 * (unit_dir.y + 1.0);
-        (1.0 - a) * WHITE + a * BLUE
+        // when the ray doesn't hit anything, return the background color
+        self.bg_color
     }
 
     pub fn project_ray<T: Hittable>(&self, i: u32, j: u32, world: &T) -> Color {
         let mut color = Color::zero();
         for _sample in 0..self.samples_per_pixel {
             let ray = self.get_ray(i, j);
-            color += Camera::ray_color(world, &ray, self.max_depth);
+            color += self.ray_color(world, &ray, self.max_depth);
         }
         color * self.pixel_samples_scale
     }

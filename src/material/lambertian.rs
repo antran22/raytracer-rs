@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::{
     object::HitRecord,
     ray::Ray,
-    texture::{SolidColor, Texture},
+    texture::{SolidColorTexture, Texture},
     vec3::{Color, Vec3},
 };
 
@@ -17,7 +17,7 @@ pub struct Lambertian {
 impl Lambertian {
     pub fn new_solid_color(albedo: Color) -> Self {
         Self {
-            texture: Arc::new(SolidColor::new(albedo)),
+            texture: Arc::new(SolidColorTexture::new(albedo)),
         }
     }
     pub fn new(texture: Arc<dyn Texture + Sync + Send>) -> Self {

@@ -90,6 +90,7 @@ pub fn construct_complex_scene(
     world.add(Sphere::stationary(Point::new(4.0, 1.0, 0.0), 1.0, mat3));
 
     let camera: Camera = Camera::new(CameraOption {
+        bg_color: Color::new(0.7, 0.8, 1.0),
         vfov: 20.0,
         look_from: Point::new(13.0, 2.0, 3.0),
         look_at: Point::new(0.0, 0.0, 0.0),

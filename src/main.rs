@@ -41,6 +41,7 @@ fn main() {
         Scene::Earth => scene::construct_earth_scene(quality),
         Scene::Perlin => scene::construct_perlin_spheres(quality),
         Scene::Quads => scene::construct_quads_scene(quality),
+        Scene::SimpleLight => scene::construct_simple_light(quality),
     };
 
     let world = BVHTree::from_list(world.objects());

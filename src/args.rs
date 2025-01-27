@@ -26,4 +26,5 @@ pub enum Scene {
     Earth,
     Perlin,
     Quads,
+    SimpleLight,
 }

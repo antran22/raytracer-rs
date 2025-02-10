@@ -1,4 +1,4 @@
-use args::{Args, Mode, Scene};
+use args::{Args, Scene};
 use camera::OutputQuality;
 use clap::Parser;
 use image::ImageBuffer;
@@ -22,26 +22,29 @@ fn main() {
     let args = Args::parse();
     let start = Instant::now();
 
-    let (image_width, samples, max_depth) = match args.mode {
-        Mode::Slow => (1200, 50, 50),
-        Mode::Fast => (400, 10, 50),
-    };
-    let image_height = (image_width as f64 / (16.0 / 9.0)) as u32;
+    let Args {
+        depth,
+        image_width,
+        image_height,
+        samples_per_pixel,
+        scene,
+    } = args;
 
     let quality = OutputQuality {
         image_width,
         image_height,
-        samples_per_pixel: samples,
-        max_depth,
+        samples_per_pixel,
+        max_depth: depth,
     };
 
-    let (world, camera) = match args.scene {
+    let (world, camera) = match scene {
         Scene::Complex => scene::construct_complex_scene(0.1, quality),
         Scene::CheckeredSphere => scene::construct_checkered_sphere_scene(quality),
         Scene::Earth => scene::construct_earth_scene(quality),
         Scene::Perlin => scene::construct_perlin_spheres(quality),
         Scene::Quads => scene::construct_quads_scene(quality),
         Scene::SimpleLight => scene::construct_simple_light(quality),
+        Scene::CornellBox => scene::construct_cornell_box(quality),
     };
 
     let world = BVHTree::from_list(world.objects());

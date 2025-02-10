@@ -4,19 +4,20 @@ use clap::{Parser, ValueEnum};
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Args {
-    /// Name of the person to greet
-    #[arg(short, long, value_enum, default_value = "fast")]
-    pub mode: Mode,
+    #[arg(short = 'd', long, default_value = "50")]
+    pub depth: u32,
 
-    /// Number of times to greet
-    #[arg(short, long, value_enum, default_value = "complex")]
+    #[arg(short = 'y', long, default_value = "600")]
+    pub image_width: u32,
+
+    #[arg(short = 'x', long, default_value = "400")]
+    pub image_height: u32,
+
+    #[arg(short = 's', long, default_value = "50")]
+    pub samples_per_pixel: u32,
+
+    #[arg(short = 'c', long, value_enum, default_value = "complex")]
     pub scene: Scene,
-}
-
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
-pub enum Mode {
-    Fast,
-    Slow,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
@@ -27,4 +28,5 @@ pub enum Scene {
     Perlin,
     Quads,
     SimpleLight,
+    CornellBox,
 }

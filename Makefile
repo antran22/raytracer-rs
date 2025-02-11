@@ -1,16 +1,2 @@
-complex:
-	mkdir -p output && cargo run --quiet -- --mode fast --scene complex && open output/image.png
-quads:
-	mkdir -p output && cargo run --quiet -- --mode fast --scene quads && open output/image.png
-checkered_sphere:
-	mkdir -p output && cargo run --quiet -- --mode fast --scene checkered-sphere && open output/image.png
-checkered_sphere_slow:
-	mkdir -p output && cargo run --quiet -- --mode slow --scene checkered-sphere && open output/image.png
-earth:
-	mkdir -p output && cargo run --quiet -- --mode fast --scene earth && open output/image.png
-perlin:
-	mkdir -p output && cargo run --quiet -- --mode fast --scene perlin && open output/image.png
-simple_light:
-	mkdir -p output && cargo run --quiet -- --mode fast --scene simple-light && open output/image.png
-simple_light_slow:
-	mkdir -p output && cargo run --quiet -- --mode slow --scene simple-light && open output/image.png
+debug_cornell:
+	cargo run -- -c cornell-box -y 600 -x 600 -s 30 -d 20 && open ./output/image.png

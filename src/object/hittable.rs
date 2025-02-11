@@ -5,6 +5,8 @@ use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{Point, Vec3};
 
+use super::Translate;
+
 #[derive(Clone)]
 pub struct HitRecord {
     pub point: Point,

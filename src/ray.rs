@@ -8,6 +8,6 @@ pub struct Ray {
 
 impl Ray {
     pub fn at(&self, t: f64) -> Point {
-        return self.origin + self.dir * t;
+        self.origin + self.dir * t
     }
 }

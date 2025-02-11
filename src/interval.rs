@@ -1,4 +1,7 @@
-use std::f64;
+use std::{
+    f64,
+    ops::{Add, Index},
+};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Interval {
@@ -68,4 +71,32 @@ impl Interval {
     pub const EMPTY: Interval = Interval::new(f64::INFINITY, f64::NEG_INFINITY);
     pub const UNIVERSE: Interval = Interval::new(f64::NEG_INFINITY, f64::INFINITY);
     pub const POSITIVE: Interval = Interval::new(0.0, f64::INFINITY);
+}
+
+impl Add<f64> for &Interval {
+    type Output = Interval;
+
+    fn add(self, rhs: f64) -> Self::Output {
+        Interval::new(self.min + rhs, self.max + rhs)
+    }
+}
+
+impl Add<&Interval> for f64 {
+    type Output = Interval;
+
+    fn add(self, rhs: &Interval) -> Self::Output {
+        rhs + self
+    }
+}
+
+impl Index<usize> for Interval {
+    type Output = f64;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        match index {
+            0 => &self.min,
+            1 => &self.max,
+            _ => panic!("out of bound"),
+        }
+    }
 }

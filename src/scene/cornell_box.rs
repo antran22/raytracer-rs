@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::{
     camera::{Camera, CameraOption, OutputQuality},
     material::{DiffuseLight, Lambertian},
-    object::{HittableList, Quad},
+    object::{HittableList, Quad, Transformable},
     vec3::{Color, Point, Vec3},
 };
 
@@ -49,8 +49,29 @@ pub fn construct_cornell_box(quality: OutputQuality) -> (HittableList, Camera) {
         Point::new(0.0, 0.0, 555.0),
         Vec3::new(555.0, 0.0, 0.0),
         Vec3::new(0.0, 555.0, 0.0),
-        white,
+        white.clone(),
     ));
+
+    world.add(
+        HittableList::rectangular_box(
+            &Point::new(0.0, 0.0, 0.0),
+            &Point::new(165.0, 330.0, 165.0),
+            white.clone(),
+        )
+        .rotate_y(15.0)
+        .translate(Vec3::new(265.0, 0.0, 295.0)),
+    );
+
+    world.add(
+        HittableList::rectangular_box(
+            &Point::new(0.0, 0.0, 0.0),
+            &Point::new(165.0, 165.0, 165.0),
+            white.clone(),
+        )
+        .rotate_y(-18.0)
+        .translate(Vec3::new(130.0, 0.0, 65.0)),
+    );
+
     let camera: Camera = Camera::new(CameraOption {
         bg_color: Color::BLACK,
         vfov: 40.0,
@@ -59,11 +80,7 @@ pub fn construct_cornell_box(quality: OutputQuality) -> (HittableList, Camera) {
         vup: Vec3::new(0.0, 1.0, 0.0),
         defocus_angle: 0.0,
         focus_distance: 10.0,
-        quality: OutputQuality {
-            samples_per_pixel: 200,
-            max_depth: 50,
-            ..quality
-        },
+        quality,
     });
 
     (world, camera)

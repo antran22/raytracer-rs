@@ -1,6 +1,10 @@
 // Define Axis-Aligned Bounding Box struct
-use crate::{interval::Interval, ray::Ray, vec3::Point};
-use std::ops::Index;
+use crate::{
+    interval::Interval,
+    ray::Ray,
+    vec3::{Point, Vec3},
+};
+use std::ops::{Add, Index};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Aabb {
@@ -95,6 +99,22 @@ impl Index<usize> for Aabb {
             2 => &self.z,
             _ => panic!("Index out of bounds for AABB"),
         }
+    }
+}
+
+impl Add<&Vec3> for &Aabb {
+    type Output = Aabb;
+
+    fn add(self, rhs: &Vec3) -> Self::Output {
+        Aabb::new(&self.x + rhs.x, &self.y + rhs.y, &self.z + rhs.z)
+    }
+}
+
+impl Add<&Aabb> for &Vec3 {
+    type Output = Aabb;
+
+    fn add(self, rhs: &Aabb) -> Self::Output {
+        rhs + self
     }
 }
 

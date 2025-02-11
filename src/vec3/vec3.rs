@@ -1,4 +1,7 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Range, Sub, SubAssign};
+use core::f64;
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Range, Sub, SubAssign,
+};
 
 use crate::utils::{rand_double, rand_range};
 
@@ -89,10 +92,12 @@ impl Vec3 {
         let cos_theta = f64::min((-self).dot(normal), 1.0);
         let r_out_perpendicular = refract_ratio * (*self + cos_theta * normal);
         let r_out_parallel = -(1.0 - r_out_perpendicular.length_squared()).abs().sqrt() * normal;
-        return r_out_parallel + r_out_perpendicular;
+        r_out_parallel + r_out_perpendicular
     }
 
-    pub const ZERO: Vec3 = Vec3::new(0.0, 0.0, 0.0);
+    pub const ZERO: Vec3 = Vec3::all(0.0);
+    pub const INFINITY: Vec3 = Vec3::all(f64::INFINITY);
+    pub const NEG_INFINITY: Vec3 = Vec3::all(f64::NEG_INFINITY);
 }
 
 impl Neg for Vec3 {
@@ -213,6 +218,17 @@ impl Index<usize> for Vec3 {
             0 => &self.x,
             1 => &self.y,
             2 => &self.z,
+            _ => panic!("Index out of bounds for Vec3"),
+        }
+    }
+}
+
+impl IndexMut<usize> for Vec3 {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        match index {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.z,
             _ => panic!("Index out of bounds for Vec3"),
         }
     }

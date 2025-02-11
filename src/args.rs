@@ -29,4 +29,5 @@ pub enum Scene {
     Quads,
     SimpleLight,
     CornellBox,
+    Transformation,
 }

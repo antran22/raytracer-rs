@@ -1,8 +1,14 @@
 use std::sync::Arc;
 
-use super::{Aabb, HitRecord, Hittable};
-use crate::{interval::Interval, ray::Ray};
+use super::{Aabb, HitRecord, Hittable, Quad};
+use crate::{
+    interval::Interval,
+    material::Material,
+    ray::Ray,
+    vec3::{Point, Vec3},
+};
 pub type HittableVec = Vec<Arc<dyn Hittable + Send + Sync>>;
+
 pub struct HittableList {
     objects: HittableVec,
     bbox: Aabb,
@@ -27,6 +33,55 @@ impl HittableList {
 
     pub fn clear(&mut self) {
         self.objects.clear();
+    }
+
+    pub fn rectangular_box(a: &Point, b: &Point, mat: Arc<dyn Material + Send + Sync>) -> Self {
+        let mut sides = Self::empty();
+        let min = Point::new(f64::min(a.x, b.x), f64::min(a.y, b.y), f64::min(a.z, b.z));
+        let max = Point::new(f64::max(a.x, b.x), f64::max(a.y, b.y), f64::max(a.z, b.z));
+
+        let dx = Vec3::new(max.x - min.x, 0.0, 0.0);
+        let dy = Vec3::new(0.0, max.y - min.y, 0.0);
+        let dz = Vec3::new(0.0, 0.0, max.z - min.z);
+
+        sides.add(Quad::new(
+            Point::new(min.x, min.y, max.z),
+            dx,
+            dy,
+            mat.clone(),
+        )); // front
+        sides.add(Quad::new(
+            Point::new(max.x, min.y, max.z),
+            -dz,
+            dy,
+            mat.clone(),
+        )); // right
+        sides.add(Quad::new(
+            Point::new(max.x, min.y, min.z),
+            -dx,
+            dy,
+            mat.clone(),
+        )); // back
+        sides.add(Quad::new(
+            Point::new(min.x, min.y, min.z),
+            dz,
+            dy,
+            mat.clone(),
+        )); // left
+        sides.add(Quad::new(
+            Point::new(min.x, max.y, max.z),
+            dx,
+            -dz,
+            mat.clone(),
+        )); // top
+        sides.add(Quad::new(
+            Point::new(min.x, min.y, min.z),
+            dx,
+            dz,
+            mat.clone(),
+        )); // bottom
+
+        sides
     }
 }
 
